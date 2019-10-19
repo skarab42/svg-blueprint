@@ -1,11 +1,33 @@
 {
   "name": "svg-blueprint",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "SVG Blueprint inspired by maker.js",
-  "main": "src/index.js",
+  "main": "./src/index.js",
+  "module": "./src/index.js",
+  "browser": "./dist/svg-blueprint.js",
   "scripts": {
-    "dev": "budo src/index.js --dir ./dist --live --open -- -t babelify"
+    "serv:demo": "budo ./src/browser.js:bundle.js --dir ./demo --live --open -- -t babelify",
+    "build:demo": "browserify ./src/browser.js -t babelify -p tinyify > ./demo/bundle.js",
+    "build:http": "browserify ./src/browser.js -t babelify > ./dist/svg-blueprint.js",
+    "build:tiny": "browserify ./src/browser.js -t babelify -p tinyify > ./dist/svg-blueprint.tiny.js",
+    "build:all": "yarn build:demo && yarn build:http && yarn build:tiny"
   },
+  "homepage": "https://github.com/onlfait/svg-blueprint",
+  "bugs": {
+    "url": "https://github.com/onlfait/svg-blueprint/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/onlfait/svg-blueprint.git"
+  },
+  "keywords": [
+    "svg",
+    "blueprint",
+    "maker.js",
+    "makerjs",
+    "zoom",
+    "pan"
+  ],
   "author": "Sébastien Mischler <sebastien@onlfait.ch>",
   "license": "MIT",
   "devDependencies": {
@@ -13,6 +35,7 @@
     "@babel/preset-env": "^7.6.2",
     "babelify": "^10.0.0",
     "budo": "^11.6.3",
-    "core-js": "^3.3.2"
+    "core-js": "^3.3.2",
+    "tinyify": "^2.5.1"
   }
 }

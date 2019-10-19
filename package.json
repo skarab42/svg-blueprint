@@ -35,7 +35,6 @@
     "@babel/preset-env": "^7.6.2",
     "babelify": "^10.0.0",
     "budo": "^11.6.3",
-    "core-js": "^3.3.2",
     "tinyify": "^2.5.1"
   }
 }

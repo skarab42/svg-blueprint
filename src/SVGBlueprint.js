@@ -1,5 +1,3 @@
-require('core-js');
-
 const template = require('./template');
 const PanEvent = require('./PanEvent');
 const ZoomEvent = require('./ZoomEvent');

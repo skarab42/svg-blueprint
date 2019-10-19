@@ -1,4 +1,5 @@
-//const corejs = require('core-js');
+require('./polyfill');
+
 const SVGBlueprint = require('./SVGBlueprint');
 
 window.SVGBlueprint = SVGBlueprint;

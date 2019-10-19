@@ -18,4 +18,9 @@ blueprint.append('rect', {
 
 blueprint.append('<circle r="100" />');
 
+blueprint.append('<circle r="150" />', {
+  cx: 100,
+  cy: 100
+});
+
 blueprint.fitView();

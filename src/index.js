@@ -1,6 +1,6 @@
-const Blueprint = require('./Blueprint');
+const SVGBlueprint = require('./SVGBlueprint');
 
-const blueprint = new Blueprint({
+const blueprint = new SVGBlueprint({
   parentSelector: 'main'
 });
 

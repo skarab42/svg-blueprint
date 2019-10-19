@@ -9,7 +9,7 @@ const svg = require('./svg');
 
 let uid = 0;
 
-class Blueprint {
+class SVGBlueprint {
   /**
    * Constructor.
    */
@@ -338,7 +338,7 @@ class Blueprint {
       x: -workspace.left + root.left + ((root.width - workspace.width) / 2),
       y: -workspace.top + root.top + ((root.height - workspace.height) / 2)
     });
-    
+
     this.updateStatusBar();
   }
 
@@ -444,4 +444,4 @@ class Blueprint {
   }
 }
 
-module.exports = Blueprint;
+module.exports = SVGBlueprint;

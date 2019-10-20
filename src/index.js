@@ -1,5 +1,1 @@
-require('./polyfill');
-
-const SVGBlueprint = require('./SVGBlueprint');
-
-module.exports = SVGBlueprint;
+console.log('./src/index.js');

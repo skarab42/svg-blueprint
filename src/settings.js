@@ -1,0 +1,21 @@
+export default {
+  width: "100%",
+  height: "100%",
+  parentSelector: "body",
+  className: "svg-blueprint",
+  backgroundColor: "#3177C6",
+  gridColor: "#fff",
+  gridOpacity: 0.3,
+  cursorColor: "#0b64c4",
+  cursorOpacity: 1,
+  axisColor: "#f4b916",
+  axisOpacity: 0.5,
+  nonScalingStroke: true,
+  strokeWidth: 2,
+  zoomFactor: 0.05,
+  zoomDirection: 1,
+  zoomLimit: { min: 0.0001, max: 10000 },
+  fitViewPadding: 50,
+  stroke: "#fff",
+  fill: "none"
+};

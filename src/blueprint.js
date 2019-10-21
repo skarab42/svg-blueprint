@@ -228,7 +228,7 @@ class Blueprint {
       return;
     }
 
-    const padding = this.settings.fitViewPadding;
+    const padding = this.settings.fitPadding * 2;
     const scaleX = ($blueprint.offsetWidth - padding) / width;
     const scaleY = ($blueprint.offsetHeight - padding) / height;
     const scale = Math.min(scaleX, scaleY);

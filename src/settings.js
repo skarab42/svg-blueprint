@@ -15,7 +15,7 @@ export default {
   zoomFactor: 0.05,
   zoomDirection: 1,
   zoomLimit: { min: 0.0001, max: 10000 },
-  fitViewPadding: 50,
+  fitPadding: 42,
   stroke: "#fff",
   fill: "none"
 };

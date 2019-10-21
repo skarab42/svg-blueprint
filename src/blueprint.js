@@ -4,6 +4,7 @@ import templates from "./templates";
 import Point from "./point";
 import { setStyle } from "./dom";
 import { createElement } from "./svg";
+import Mouse from "./mouse";
 
 import Hammer from "hammerjs";
 
@@ -28,6 +29,9 @@ class Blueprint {
 
     /** @type {Point} Current position. */
     this.position = new Point(0, 0);
+
+    /** @type {Point} Pointer position. */
+    this.pointer = new Point(0, 0);
 
     /** @type {object} Local settings. */
     this.settings = { ...settings, uid, ...options };
@@ -64,11 +68,23 @@ class Blueprint {
       this.fit();
     });
 
+    // update the cursor position from a mouse/pointer event
+    const updatePointerPosition = event => {
+      const offsets = this.parent.getBoundingClientRect();
+      this.pointer = new Point(
+        (event.pageX || event.center.x) - offsets.left,
+        (event.pageY || event.center.y) - offsets.top
+      );
+      this.updateCursorPosition();
+    };
+
     // pan event
     let lastPanEvent = null;
 
     hammer.on("panstart", event => {
       lastPanEvent = event;
+      updatePointerPosition(event);
+      this.show("cursor");
     });
 
     hammer.on("pan", event => {
@@ -77,6 +93,13 @@ class Blueprint {
         y: event.deltaY - lastPanEvent.deltaY
       });
       lastPanEvent = event;
+      updatePointerPosition(event);
+    });
+
+    hammer.on("panend", event => {
+      lastPanEvent = event;
+      updatePointerPosition(event);
+      this.hide("cursor");
     });
 
     // pinch event
@@ -84,18 +107,37 @@ class Blueprint {
 
     hammer.on("pinchstart", event => {
       pinchScale = event.scale;
-      pinchCenter = event.center;
-      this.updateCursorPosition(pinchCenter);
+      updatePointerPosition(event);
       this.show("cursor");
     });
 
     hammer.on("pinch", event => {
       const scale = event.scale - pinchScale;
       pinchScale = event.scale;
-      this.zoom({ scale: this.scale + scale, target: pinchCenter });
+      updatePointerPosition(event);
+      this.zoom({ scale: this.scale + scale, target: this.pointer });
     });
 
     hammer.on("pinchend", event => {
+      this.hide("cursor");
+    });
+
+    // on mouse move
+    const mouse = new Mouse(this.parent);
+
+    mouse.on("move", event => {
+      updatePointerPosition(event.originalEvent);
+    });
+
+    mouse.on("wheelstart", event => {
+      this.show("cursor");
+    });
+
+    mouse.on("wheel", event => {
+      this.zoom({ delta: event.delta, target: this.pointer });
+    });
+
+    mouse.on("wheelend", event => {
       this.hide("cursor");
     });
   }
@@ -172,6 +214,16 @@ class Blueprint {
       ? this.settings.strokeWidth / this.scale
       : "none";
     this.elements.workspace.style.strokeWidth = strokeWidth;
+  }
+
+  /**
+   * Update cursor position.
+   */
+  updateCursorPosition() {
+    this.elements.cursor.setAttribute(
+      "transform",
+      `translate(${this.pointer.x} ${this.pointer.y})`
+    );
   }
 
   /**

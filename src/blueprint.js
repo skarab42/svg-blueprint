@@ -2,6 +2,7 @@ import settings from "./settings";
 import template from "./template";
 import templates from "./templates";
 import Point from "./point";
+import dom from "./dom";
 import svg from "./svg";
 
 // Unique ID, incremented each time a Blueprint class is instanciated.
@@ -46,6 +47,36 @@ class Blueprint {
 
     // center view
     this.center();
+  }
+
+  /**
+   * Set setting by key/value pair or by an collection of key/value pair.
+   *
+   * @param {string|object} key
+   * @param {mixed}         [value=null]
+   */
+  set(key, value = null) {
+    if (typeof key === "string") {
+      this.settings[key] = value;
+      return;
+    }
+
+    const values = Object.entries(key);
+
+    for (let [key, value] of values) {
+      this.set(key, value);
+    }
+  }
+
+  /**
+   * Return a setting value.
+   *
+   * @param {string} key
+   *
+   * @return {mixed}
+   */
+  get(key) {
+    return this.settings[key];
   }
 
   /**
@@ -111,6 +142,26 @@ class Blueprint {
     this.elements.grid10.setAttribute("height", size);
     this.elements.gridPattern.setAttribute("width", size);
     this.elements.gridPattern.setAttribute("height", size);
+  }
+
+  /**
+   * Show/Hide an element.
+   *
+   * @param {string}  what axis, grid, etc...
+   * @param {boolean} [display=true]
+   */
+  show(what, display = true) {
+    dom.setStyle(this.elements[what], "display", display ? null : "none");
+  }
+
+  /**
+   * Hide/Show an element.
+   *
+   * @param {string}  what axis, grid, etc...
+   * @param {boolean} [hide=true]
+   */
+  hide(what, hide = true) {
+    this.show(what, !hide);
   }
 
   /**

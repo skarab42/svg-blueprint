@@ -17,3 +17,11 @@ blueprint.append("rect", {
 
 // blueprint.center();
 blueprint.fit();
+
+blueprint.set({ fitPadding: 10 });
+
+blueprint.hide("grid");
+blueprint.show("grid");
+blueprint.hide("axis");
+
+blueprint.fit();

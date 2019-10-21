@@ -1,3 +1,33 @@
+let supportsPassiveEventListener = false;
+
+try {
+  const opts = Object.defineProperty({}, "passive", {
+    get: function() {
+      supportsPassiveEventListener = true;
+    }
+  });
+  window.addEventListener("testPassive", null, opts);
+  window.removeEventListener("testPassive", null, opts);
+} catch (e) {}
+
+function addPassiveEventListener(element, eventName, callback) {
+  const capture = supportsPassiveEventListener ? { passive: true } : false;
+  element.addEventListener(eventName, callback, capture);
+}
+
+function addEvent(element, name, value = null) {
+  if (typeof name === "string") {
+    addPassiveEventListener(element, name, value);
+    return;
+  }
+
+  const names = Object.entries(name);
+
+  for (let [name, value] of names) {
+    addPassiveEventListener(element, name, value);
+  }
+}
+
 function setStyle(element, name, value = null) {
   if (typeof name === "string") {
     if (value === null) {
@@ -28,7 +58,9 @@ function setAttribute(element, name, value = null) {
   const names = Object.entries(name);
 
   for (let [name, value] of names) {
-    if (name === "style") {
+    if (name === "events") {
+      addEvent(element, value);
+    } else if (name === "style") {
       setStyle(element, value);
     } else {
       setAttribute(element, name, value);
@@ -50,4 +82,11 @@ function fromString(string, mimeType = "application/xml") {
   return new DOMParser().parseFromString(string, mimeType);
 }
 
-export default { setStyle, setAttribute, createElement, fromString };
+export {
+  addPassiveEventListener,
+  addEvent,
+  setStyle,
+  setAttribute,
+  createElement,
+  fromString
+};

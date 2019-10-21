@@ -2,8 +2,10 @@ import settings from "./settings";
 import template from "./template";
 import templates from "./templates";
 import Point from "./point";
-import dom from "./dom";
-import svg from "./svg";
+import { setStyle } from "./dom";
+import { createElement } from "./svg";
+
+import Hammer from "hammerjs";
 
 // Unique ID, incremented each time a Blueprint class is instanciated.
 let uid = 0;
@@ -47,6 +49,55 @@ class Blueprint {
 
     // center view
     this.center();
+
+    // touch events
+    const hammer = new Hammer.Manager(this.parent);
+
+    hammer.add([
+      new Hammer.Pan(),
+      new Hammer.Pinch(),
+      new Hammer.Tap({ event: "doubletap", taps: 2 })
+    ]);
+
+    // fit to view
+    hammer.on("doubletap", event => {
+      this.fit();
+    });
+
+    // pan event
+    let lastPanEvent = null;
+
+    hammer.on("panstart", event => {
+      lastPanEvent = event;
+    });
+
+    hammer.on("pan", event => {
+      this.pan({
+        x: event.deltaX - lastPanEvent.deltaX,
+        y: event.deltaY - lastPanEvent.deltaY
+      });
+      lastPanEvent = event;
+    });
+
+    // pinch event
+    let pinchCenter, pinchScale;
+
+    hammer.on("pinchstart", event => {
+      pinchScale = event.scale;
+      pinchCenter = event.center;
+      this.updateCursorPosition(pinchCenter);
+      this.show("cursor");
+    });
+
+    hammer.on("pinch", event => {
+      const scale = event.scale - pinchScale;
+      pinchScale = event.scale;
+      this.zoom({ scale: this.scale + scale, target: pinchCenter });
+    });
+
+    hammer.on("pinchend", event => {
+      this.hide("cursor");
+    });
   }
 
   /**
@@ -151,7 +202,7 @@ class Blueprint {
    * @param {boolean} [display=true]
    */
   show(what, display = true) {
-    dom.setStyle(this.elements[what], "display", display ? null : "none");
+    setStyle(this.elements[what], "display", display ? null : "none");
   }
 
   /**
@@ -311,7 +362,7 @@ class Blueprint {
    * @return {SVGElement}
    */
   createElement(name, attributes = {}) {
-    return svg.createElement(name, {
+    return createElement(name, {
       "stroke-width": null,
       stroke: this.settings.stroke,
       fill: this.settings.fill,

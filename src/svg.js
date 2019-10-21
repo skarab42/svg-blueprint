@@ -1,4 +1,4 @@
-import dom from "./dom";
+import { setAttribute } from "./dom";
 
 const xmlns = "http://www.w3.org/2000/svg";
 
@@ -17,10 +17,10 @@ function createElement(name, attributes = null) {
   }
 
   if (attributes !== null) {
-    dom.setAttribute(element, attributes);
+    setAttribute(element, attributes);
   }
 
   return element;
 }
 
-export default { fromString, createElement };
+export { fromString, createElement };

@@ -4,10 +4,12 @@ const blueprint = new sbp.Blueprint({
   parentSelector: "main"
 });
 
+blueprint.move({ x: 100, y: 100 });
+blueprint.pan({ x: 42, y: 42 });
+
 console.log('blueprint:', blueprint);
 console.log('module:', sbp);
 
-// blueprint.pan({ x: 5, y: 5 });
 // blueprint.move({ x: 15, y: 15 });
 // blueprint.pan({ x: 5, y: 5 });
 //

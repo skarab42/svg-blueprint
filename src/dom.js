@@ -3,12 +3,14 @@ let supportsPassiveEventListener = false;
 try {
   const opts = Object.defineProperty({}, "passive", {
     get: function() {
-      supportsPassiveEventListener = true;
+      return (supportsPassiveEventListener = true);
     }
   });
   window.addEventListener("testPassive", null, opts);
   window.removeEventListener("testPassive", null, opts);
-} catch (e) {}
+} catch (e) {
+  /* test fail... */
+}
 
 function addPassiveEventListener(element, eventName, callback) {
   const capture = supportsPassiveEventListener ? { passive: true } : false;

@@ -1,9 +1,9 @@
-import { setAttribute } from "./dom";
+import { fromString as domFromString, setAttribute } from "./dom";
 
 const xmlns = "http://www.w3.org/2000/svg";
 
 function fromString(string) {
-  const doc = dom.fromString(`<svg xmlns="${xmlns}">${string}</svg>`);
+  const doc = domFromString(`<svg xmlns="${xmlns}">${string}</svg>`);
   return doc.documentElement.firstChild;
 }
 

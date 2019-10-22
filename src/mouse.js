@@ -1,4 +1,5 @@
 import { addPassiveEventListener } from "./dom";
+import Point from "./point";
 
 function onMouseWheel(event) {
   const delta = Math.sign(event.deltaY);
@@ -18,7 +19,9 @@ function onMouseWheel(event) {
 }
 
 function onMouseMove(event) {
-  this.emit("move", { originalEvent: event });
+  const rect = this.element.getBoundingClientRect();
+  this.position = new Point(event.pageX - rect.left, event.pageY - rect.top);
+  this.emit("move", { position: this.position, originalEvent: event });
 }
 
 class Mouse {
@@ -26,6 +29,7 @@ class Mouse {
     this.element = element;
     this.callbacks = [];
     this.timeout = null;
+    this.position = new Point(0, 0);
 
     addPassiveEventListener(element, "wheel", event => {
       onMouseWheel.call(this, event);

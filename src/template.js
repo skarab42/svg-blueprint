@@ -9,7 +9,7 @@
  * @return {string}
  */
 function format(string, data) {
-  return string.replace(/(\{\{([^\}]+)\}\})/g, function(match, p1, p2) {
+  return string.replace(/(\{\{([^}]+)\}\})/g, function(match, p1, p2) {
     return data[p2] || p1;
   });
 }

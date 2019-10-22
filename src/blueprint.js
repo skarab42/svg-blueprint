@@ -1,5 +1,4 @@
 import settings from "./settings";
-import template from "./template";
 import templates from "./templates";
 import Point from "./point";
 import { setStyle } from "./dom";
@@ -64,7 +63,7 @@ class Blueprint {
     ]);
 
     // fit to view
-    hammer.on("doubletap", event => {
+    hammer.on("doubletap", () => {
       this.fit();
     });
 
@@ -103,7 +102,7 @@ class Blueprint {
     });
 
     // pinch event
-    let pinchCenter, pinchScale;
+    let pinchScale;
 
     hammer.on("pinchstart", event => {
       pinchScale = event.scale;
@@ -118,7 +117,7 @@ class Blueprint {
       this.zoom({ scale: this.scale + scale, target: this.pointer });
     });
 
-    hammer.on("pinchend", event => {
+    hammer.on("pinchend", () => {
       this.hide("cursor");
     });
 
@@ -129,7 +128,7 @@ class Blueprint {
       updatePointerPosition(event.originalEvent);
     });
 
-    mouse.on("wheelstart", event => {
+    mouse.on("wheelstart", () => {
       this.show("cursor");
     });
 
@@ -137,9 +136,18 @@ class Blueprint {
       this.zoom({ delta: event.delta, target: this.pointer });
     });
 
-    mouse.on("wheelend", event => {
+    mouse.on("wheelend", () => {
       this.hide("cursor");
     });
+  }
+
+  setPointer() {
+    const offsets = this.parent.getBoundingClientRect();
+    this.pointer = new Point(
+      (event.pageX || event.center.x) - offsets.left,
+      (event.pageY || event.center.y) - offsets.top
+    );
+    this.updateCursorPosition();
   }
 
   /**

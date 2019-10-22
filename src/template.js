@@ -32,8 +32,10 @@ function toElements(string) {
   const div = document.createElement("div");
   div.innerHTML = string.trim();
 
-  div.querySelectorAll("[data-key]").forEach(element => {
-    elements[element.getAttribute("data-key")] = element;
+  const list = div.querySelectorAll("[data-key]");
+
+  Array.prototype.forEach.call(list, function(item) {
+    elements[item.getAttribute("data-key")] = item;
   });
 
   return elements;

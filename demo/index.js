@@ -14,5 +14,7 @@ blueprint.hide(["axis", "grid"]);
 blueprint.hide(["axis"], false);
 blueprint.show("grid");
 
+blueprint.zoom(2.8);
+
 console.log('blueprint:', blueprint);
 console.log('module:', sbp);

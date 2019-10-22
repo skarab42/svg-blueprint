@@ -147,6 +147,81 @@ class Blueprint {
   pan(point, redraw = true) {
     this.move(this.position.add(new Point(point)), redraw);
   }
+
+  /**
+   * Return the center point of the workspace.
+   *
+   * @return {Point}
+   */
+  getWorkspaceCenter() {
+    return new Point(
+      this.elements.blueprint.offsetWidth / 2,
+      this.elements.blueprint.offsetHeight / 2
+    );
+  }
+
+  /**
+   * Zoom the workspace.
+   *
+   * @param {float|object} [scale={}]          Scale ratio or scale options.
+   * @param {float}        [scale.ratio=1]     New scale ratio, used by center view etc...
+   * @param {float}        [scale.delta=null]  Amount of scale to add, based on zoomFactor setting.
+   * @param {object}       [scale.target=null] Zoom target point, by default center of workspace.
+   */
+  zoom(scale = {}) {
+    const oldScale = this.scale;
+
+    if (typeof scale !== "object") {
+      scale = { ratio: scale };
+    }
+
+    // merge defaults settings
+    scale = { ratio: 1, delta: null, target: null, ...scale };
+
+    // scale by ratio/delta ?
+    if (scale.delta !== null) {
+      scale.delta *= this.settings.zoomDirection;
+      this.scale += scale.delta * this.settings.zoomFactor * this.scale;
+    } else {
+      this.scale = scale.ratio;
+    }
+
+    // zoom limit
+    if (this.scale < this.settings.zoomLimit.min) {
+      this.scale = this.settings.zoomLimit.min;
+    } else if (this.scale > this.settings.zoomLimit.max) {
+      this.scale = this.settings.zoomLimit.max;
+    }
+
+    // calculate new grid size
+    let gridSize = this.scale
+      .toString()
+      .replace(".", "")
+      .replace(/e.*/, "")
+      .replace(/^0+/, "")
+      .replace(/^([1-9])/, "$1.");
+    gridSize = parseFloat(gridSize) * 100;
+    gridSize = { width: gridSize, height: gridSize };
+
+    // update grid size
+    setAttribute(this.elements.grid10, gridSize);
+    setAttribute(this.elements.gridPattern, gridSize);
+
+    // calculate x and y based on target coords
+    scale.target = scale.target || this.getWorkspaceCenter();
+
+    const coords = new Point(
+      (scale.target.x - this.position.x) / oldScale,
+      (scale.target.y - this.position.y) / oldScale
+    );
+
+    const position = new Point(
+      -coords.x * this.scale + scale.target.x,
+      -coords.y * this.scale + scale.target.y
+    );
+
+    this.move(position);
+  }
 }
 
 export default Blueprint;

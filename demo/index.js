@@ -4,7 +4,8 @@ const blueprint = new sbp.Blueprint({
   parentSelector: "main"
 });
 
-console.log(sbp);
+console.log('blueprint:', blueprint);
+console.log('module:', sbp);
 
 // blueprint.pan({ x: 5, y: 5 });
 // blueprint.move({ x: 15, y: 15 });

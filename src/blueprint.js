@@ -1,4 +1,5 @@
 import settings from "./settings";
+import templates from "./templates";
 
 // Unique ID; Incremented each time a Blueprint class is instanciated.
 let uid = 0;
@@ -50,6 +51,12 @@ class Blueprint {
 
     /** @type {Element} Parent DOM Element. */
     this.parent = getParent(this.settings);
+
+    /** @type {object} Collection of DOM Elements. */
+    this.elements = templates.blueprint({ ...this.settings, uid });
+
+    // append the blueprint element to parent element
+    this.parent.appendChild(this.elements.blueprint);
   }
 }
 

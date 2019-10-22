@@ -1,6 +1,4 @@
-import "./polyfill";
-
 import settings from "./settings";
-import { Blueprint, blueprint } from "./blueprint";
+import Blueprint from "./Blueprint";
 
-export { settings, Blueprint, blueprint };
+export { settings, Blueprint };

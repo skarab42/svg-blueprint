@@ -1,4 +1,9 @@
-export default {
+/**
+ * Defaults settings.
+ *
+ * @type {object}
+ */
+const settings = {
   width: "100%",
   height: "100%",
   parentSelector: "body",
@@ -19,3 +24,5 @@ export default {
   stroke: "#fff",
   fill: "none"
 };
+
+export default settings;

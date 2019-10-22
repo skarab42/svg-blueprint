@@ -1,8 +1,10 @@
 const sbp = require("svg-blueprint");
 
-const blueprint = sbp.blueprint({
+const blueprint = new sbp.Blueprint({
   parentSelector: "main"
 });
+
+console.log(sbp);
 
 // blueprint.pan({ x: 5, y: 5 });
 // blueprint.move({ x: 15, y: 15 });
@@ -10,10 +12,10 @@ const blueprint = sbp.blueprint({
 //
 // blueprint.zoom({ delta: 2, target: { x: 20, y: 20 } });
 
-blueprint.append("rect", {
-  width: 100,
-  height: 100
-});
+// blueprint.append("rect", {
+//   width: 100,
+//   height: 100
+// });
 
 // blueprint.center();
 // blueprint.fit();
@@ -24,4 +26,7 @@ blueprint.append("rect", {
 // blueprint.show("grid");
 // blueprint.hide("axis");
 
-blueprint.fit();
+// blueprint.setCursor({ x: 10, y: 20 });
+// blueprint.show("cursor");
+
+//blueprint.fit();

@@ -91,6 +91,43 @@ class Blueprint {
   }
 
   /**
+   * Show/Hide an element.
+   *
+   * - show("axis");
+   * - show("axis grid");
+   * - show("axis grid", false);
+   * - show(["axis", "grid"], true);
+   *
+   * @param {string|array} what axis, grid, etc...
+   * @param {bool}         [display=true]
+   */
+  show(what, display = true) {
+    if (!Array.isArray(what)) {
+      what = what.split(/[\s,]+/);
+    }
+    what.forEach(key => {
+      if (this.elements[key]) {
+        setStyle(this.elements[key], "display", display ? null : "none");
+      }
+    });
+  }
+
+  /**
+   * Hide/Show an element.
+   *
+   * - hide("axis");
+   * - hide("axis grid");
+   * - hide("axis grid", false);
+   * - hide(["axis", "grid"], true);
+   *
+   * @param {string} what axis, grid, etc...
+   * @param {bool}   [hide=true]
+   */
+  hide(what, hide = true) {
+    this.show(what, !hide);
+  }
+
+  /**
    * Move the workspace at position.
    *
    * @param {Point} point

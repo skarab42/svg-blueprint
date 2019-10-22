@@ -1,4 +1,11 @@
 /**
+ * XML namespace.
+ *
+ * @type {string}
+ */
+const xmlns = "http://www.w3.org/2000/svg";
+
+/**
  * Set style(s).
  *
  * Setting a NULL value remove the property.
@@ -114,4 +121,43 @@ function setAttribute(element, name, value = null) {
   }
 }
 
-export { setStyle, setAttribute, setTransform };
+function fromString(string, mimeType = "application/xml") {
+  return new DOMParser().parseFromString(string, mimeType);
+}
+
+function createElement(name, attributes = null) {
+  const element = document.createElement(name);
+
+  if (attributes !== null) {
+    setAttribute(element, attributes);
+  }
+
+  return element;
+}
+
+function createSVGElement(name, attributes = null) {
+  let element = null;
+
+  if (name.charAt(0) === "<") {
+    const doc = fromString(`<svg xmlns="${xmlns}">${name}</svg>`);
+    element = doc.documentElement.firstChild;
+  } else {
+    element = document.createElementNS(xmlns, name);
+  }
+
+  if (attributes !== null) {
+    setAttribute(element, attributes);
+  }
+
+  return element;
+}
+
+export {
+  xmlns,
+  setStyle,
+  setAttribute,
+  setTransform,
+  fromString,
+  createElement,
+  createSVGElement
+};

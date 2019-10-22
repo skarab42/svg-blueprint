@@ -16,6 +16,8 @@ blueprint.show("grid");
 
 blueprint.zoom(2.8);
 
+blueprint.append('rect', { width: 100, height: 100 });
+
 blueprint.center();
 blueprint.fit();
 

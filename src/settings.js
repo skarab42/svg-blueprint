@@ -6,6 +6,7 @@
 const settings = {
   width: "100%",
   height: "100%",
+  parentElement: null,
   parentSelector: "body",
   className: "svg-blueprint",
   backgroundColor: "#3177C6",

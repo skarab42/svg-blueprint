@@ -222,6 +222,50 @@ class Blueprint {
 
     this.move(position);
   }
+
+  /**
+   * Center the view at [0, 0].
+   */
+  center() {
+    this.move(this.getWorkspaceCenter());
+  }
+
+  /**
+   * Fit workspace to view.
+   */
+  fit() {
+    const $blueprint = this.elements.blueprint;
+    const $workspace = this.elements.workspace;
+
+    let workspace = $workspace.getBoundingClientRect();
+    let width = workspace.width / this.scale;
+    let height = workspace.height / this.scale;
+
+    // no contents...
+    if (!width || !height) {
+      this.center();
+      return;
+    }
+
+    // zoom to fit the view minus the padding
+    const padding = this.settings.fitPadding * 2;
+    const scaleX = ($blueprint.offsetWidth - padding) / width;
+    const scaleY = ($blueprint.offsetHeight - padding) / height;
+    const scale = Math.min(scaleX, scaleY);
+
+    this.zoom(scale);
+
+    // move the workspace at center of the view
+    const blueprint = $blueprint.getBoundingClientRect();
+    workspace = $workspace.getBoundingClientRect();
+    width = (blueprint.width - workspace.width) / 2;
+    height = (blueprint.height - workspace.height) / 2;
+
+    this.pan({
+      x: -workspace.left + blueprint.left + width,
+      y: -workspace.top + blueprint.top + height
+    });
+  }
 }
 
 export default Blueprint;

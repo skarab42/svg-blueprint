@@ -16,5 +16,8 @@ blueprint.show("grid");
 
 blueprint.zoom(2.8);
 
+blueprint.center();
+blueprint.fit();
+
 console.log('blueprint:', blueprint);
 console.log('module:', sbp);

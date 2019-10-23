@@ -6,6 +6,64 @@
 const xmlns = "http://www.w3.org/2000/svg";
 
 /**
+ * Support passive event listener?
+ *
+ * @type {bool}
+ */
+let supportsPassiveEventListener = false;
+
+try {
+  const opts = Object.defineProperty({}, "passive", {
+    get: function() {
+      return (supportsPassiveEventListener = true);
+    }
+  });
+  window.addEventListener("testPassive", null, opts);
+  window.removeEventListener("testPassive", null, opts);
+} catch (e) {
+  /* test fail... */
+}
+
+/**
+ * Add passive event listener.
+ *
+ * @param {Element}  element
+ * @param {string}   name
+ * @param {function} [callback=null]
+ */
+function addPassiveEventListener(element, name, callback) {
+  const capture = supportsPassiveEventListener ? { passive: true } : false;
+  const names = name.split(/[\s,]+/);
+  names.forEach(name => {
+    if (callback === null) {
+      element.removeEventListener(name, callback, capture);
+    } else {
+      element.addEventListener(name, callback, capture);
+    }
+  });
+}
+
+/**
+ * Add (passive) event(s) listener.
+ *
+ * @param {Element}  element
+ * @param {string}   name
+ * @param {function} [callback=null]
+ */
+function addEvent(element, name, callback = null) {
+  if (typeof name === "string") {
+    addPassiveEventListener(element, name, callback);
+    return;
+  }
+
+  const keys = Object.keys(name);
+
+  for (let key of keys) {
+    addPassiveEventListener(element, key, name[key]);
+  }
+}
+
+/**
  * Set style(s).
  *
  * Setting a NULL value remove the property.
@@ -92,6 +150,7 @@ function setTransform(element, type = null, value = null) {
  *
  * - Setting a NULL value remove the attribute.
  * - If the name parameter is "style", setStyle(element, value) is called.
+ * - If the name parameter is "event", addEvent(element, value) is called.
  * - If the name parameter is "transform", setTransform(element, value) is called.
  *
  * @param {Element}       element
@@ -113,6 +172,8 @@ function setAttribute(element, name, value = null) {
   for (let key of keys) {
     if (key === "style") {
       setStyle(element, name[key]);
+    } else if (key === "event") {
+      addEvent(element, name[key]);
     } else if (key === "transform") {
       setTransform(element, name[key]);
     } else {
@@ -159,5 +220,7 @@ export {
   setTransform,
   fromString,
   createElement,
-  createSVGElement
+  createSVGElement,
+  addPassiveEventListener,
+  addEvent
 };

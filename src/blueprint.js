@@ -2,6 +2,7 @@ import settings from "./settings";
 import templates from "./templates";
 import Point from "./point";
 import { setAttribute, setStyle, setTransform, createSVGElement } from "./dom";
+import Pointer from "./pointer";
 
 // Unique ID; Incremented each time a Blueprint class is instanciated.
 let uid = 0;
@@ -63,8 +64,40 @@ class Blueprint {
     /** @type {float} Current scale factor. */
     this.scale = 1;
 
+    /** @type {Pointer} Pointer instance. */
+    this.pointer = new Pointer(this.parent);
+
     // append the blueprint element to parent element
     this.parent.appendChild(this.elements.blueprint);
+
+    // events listeners
+
+    // pointer pan
+    this.pointer.on("pan.start", () => {
+      this.updateCursorPosition({ show: true });
+    });
+
+    this.pointer.on("pan.move", event => {
+      this.updateCursorPosition({ show: true });
+      this.pan(event.data.movement);
+    });
+
+    this.pointer.on("pan.end", () => {
+      this.updateCursorPosition({ show: false });
+    });
+  }
+
+  /**
+   * Update the cursor position.
+   *
+   * @param {object} [options={}]
+   * @param {bool}   [options.show=false]
+   * @param {Point}  [options.position=null] Default to pointer position.
+   */
+  updateCursorPosition({ show = false, position = null } = {}) {
+    position = position ? new Point(position) : this.pointer.position;
+    setTransform(this.elements.cursor, { translate: position.toArray() });
+    this.show("cursor", show);
   }
 
   /**

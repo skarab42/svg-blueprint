@@ -85,6 +85,20 @@ class Blueprint {
     this.pointer.on("pan.end", () => {
       this.updateCursorPosition({ show: false });
     });
+
+    // pointer wheel
+    this.pointer.on("wheel.start", () => {
+      this.updateCursorPosition({ show: true });
+    });
+
+    this.pointer.on("wheel.move", event => {
+      this.updateCursorPosition({ show: true });
+      this.zoom({ delta: event.data.wheelDelta, target: event.data.position });
+    });
+
+    this.pointer.on("wheel.end", () => {
+      this.updateCursorPosition({ show: false });
+    });
   }
 
   /**

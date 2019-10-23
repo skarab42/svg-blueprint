@@ -5,25 +5,25 @@ class Point {
   /**
    * Point class constructor.
    *
-   * - new Point()         // { x: 0 , y: 0  }
-   * - new Point(42)       // { x: 42, y: 42 }
-   * - new Point(42, 10)   // { x: 42, y: 10 }
-   * - new Point([42])     // { x: 42, y: 42 }
-   * - new Point([42, 10]) // { x: 42, y: 10 }
+   * - new Point()                // { x: 0 , y: 0  }
+   * - new Point([])              // { x: 0 , y: 0  }
+   * - new Point(42)              // { x: 42, y: 0  }
+   * - new Point([ 42 ])          // { x: 42, y: 0  }
+   * - new Point(42, 10)          // { x: 42, y: 10 }
+   * - new Point([ 42, 10 ])      // { x: 42, y: 10 }
+   * - new Point({ x: 42, y:10 }) // { x: 42, y: 10 }
    *
    * @param {float|array|Point} [x=0]
-   * @param {float}             [y=x]
+   * @param {float}             [y=0]
    */
-  constructor(x = 0, y = x) {
-    if (x instanceof Point) {
-      x = x.x;
-      y = y.y;
-    } else if (typeof x === "object" && x.x) {
-      x = x.x;
-      y = y.y === undefined ? x : y.y;
-    } else if (Array.isArray(x)) {
-      x = x[0];
-      y = y[1] === undefined ? x : y[1];
+  constructor(x = 0, y = 0) {
+    // input format
+    if (Array.isArray(x)) {
+      y = x[1] || 0;
+      x = x[0] || 0;
+    } else if (x.x !== undefined) {
+      y = x.y || 0;
+      x = x.x || 0;
     }
 
     /** @type {float} X value. */
@@ -45,12 +45,32 @@ class Point {
   }
 
   /**
+   * Substract point and return new Point.
+   *
+   * @param  {float|array|Point} point
+   * @return {Point}
+   */
+  sub(point) {
+    const p1 = new Point(point);
+    return new Point(this.x - p1.x, this.y - p1.y);
+  }
+
+  /**
    * Return the values as array.
    *
    * @return {array}
    */
   toArray() {
     return [this.x, this.y];
+  }
+
+  /**
+   * Return a clone.
+   *
+   * @return {Point}
+   */
+  clone() {
+    return new Point(this.x, this.y);
   }
 }
 

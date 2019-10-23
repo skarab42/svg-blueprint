@@ -96,7 +96,7 @@ class Pointer {
    * @param {function} func
    */
   on(name, func) {
-    const names = name.split(/[\s,]+/);
+    const names = name.trim().split(/[\s,]+/);
     names.forEach(name => {
       this.callbacks.push({ name, func });
     });

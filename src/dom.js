@@ -33,7 +33,7 @@ try {
  */
 function addPassiveEventListener(element, name, callback) {
   const capture = supportsPassiveEventListener ? { passive: true } : false;
-  const names = name.split(/[\s,]+/);
+  const names = name.trim().split(/[\s,]+/);
   names.forEach(name => {
     if (callback === null) {
       element.removeEventListener(name, callback, capture);

@@ -75,7 +75,7 @@ class Pointer {
     let wheelTimeout = null;
 
     target.addEventListener("wheel", () => {
-      this.wheelDelta = Math.sign(event.deltaY);
+      this.wheelDelta = event.deltaY > 0 ? 1 : -1;
       if (wheelTimeout === null) {
         this.emit("wheel.start");
       }

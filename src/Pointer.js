@@ -1,4 +1,5 @@
 import Point from "./Point";
+import { addEvent } from "./dom";
 
 function eventFactory({ wheelDelta, panning, movement, position }) {
   return {
@@ -52,12 +53,12 @@ class Pointer {
     this.wheelDelta = 0; // -1|+1
 
     // pan listeners
-    target.addEventListener("pointerdown", () => {
+    addEvent(target, "pointerdown", () => {
       this.panning = true;
       this.emit("pan.start");
     });
 
-    target.addEventListener("pointermove", event => {
+    addEvent(target, "pointermove", event => {
       updateMovement(this, event);
       this.emit("move");
       if (!this.panning) {
@@ -66,7 +67,7 @@ class Pointer {
       this.emit("pan.move");
     });
 
-    target.addEventListener("pointerup", () => {
+    addEvent(target, "pointerup", () => {
       this.panning = false;
       this.emit("pan.end");
     });
@@ -74,7 +75,7 @@ class Pointer {
     // (mouse) wheel listener
     let wheelTimeout = null;
 
-    target.addEventListener("wheel", () => {
+    addEvent(target, "wheel", () => {
       this.wheelDelta = event.deltaY > 0 ? 1 : -1;
       if (wheelTimeout === null) {
         this.emit("wheel.start");
@@ -88,10 +89,24 @@ class Pointer {
     });
   }
 
+  /**
+   * Register event callback.
+   *
+   * @param {string}   name
+   * @param {function} func
+   */
   on(name, func) {
-    this.callbacks.push({ name, func });
+    const names = name.split(/[\s,]+/);
+    names.forEach(name => {
+      this.callbacks.push({ name, func });
+    });
   }
 
+  /**
+   * Emit an event.
+   *
+   * @param {string} name
+   */
   emit(name) {
     const data = eventFactory(this);
     this.callbacks.forEach(callback => {

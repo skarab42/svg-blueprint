@@ -5,7 +5,7 @@
   "main": "./src/index.js",
   "module": "./src/index.js",
   "scripts": {
-    "serv:demo": "budo ./src/index.js -s svg-blueprint.js --dir ./demo --live --open -- -r ./src/index.js:svg-blueprint -t babelify -p licensify",
+    "serv:dev": "budo ./src/index.js -s svg-blueprint.js --dir ./demo --live --open -- -r ./src/index.js:svg-blueprint -t babelify -p licensify",
     "format": "prettier-eslint --write ./src/**/*.js",
     "lint": "eslint ./src/**/*.js"
   },
@@ -34,7 +34,6 @@
     "babelify": "^10.0.0",
     "budo": "^11.6.3",
     "eslint": "^6.5.1",
-    "hammerjs": "^2.0.8",
     "licensify": "^3.1.3",
     "prettier-eslint-cli": "^5.0.0",
     "tinyify": "^2.5.1"

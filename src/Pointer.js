@@ -1,5 +1,5 @@
 import Point from "./Point";
-import { addEvent } from "./dom";
+import { addEvent, setStyle } from "./dom";
 
 function eventFactory({ wheelDelta, panning, movement, position }) {
   return {
@@ -52,30 +52,42 @@ class Pointer {
     /** @type {int} Wheel delta. */
     this.wheelDelta = 0; // -1|+1
 
+    // disable browser touch events
+    setStyle(target, "touch-action", "none");
+
     // pan listeners
-    addEvent(target, "pointerdown", () => {
-      this.panning = true;
+    addEvent(target, "pointerdown", event => {
+      if (this.panning) {
+        return;
+      }
+      updateMovement(this, event);
+      this.panning = event.pointerId;
       this.emit("pan.start");
+      console.log(event);
     });
 
     addEvent(target, "pointermove", event => {
-      updateMovement(this, event);
       this.emit("move");
-      if (!this.panning) {
+      if (this.panning !== event.pointerId) {
         return;
       }
+      updateMovement(this, event);
       this.emit("pan.move");
     });
 
-    addEvent(target, "pointerup", () => {
-      this.panning = false;
-      this.emit("pan.end");
+    addEvent(target, "pointerup", event => {
+      if (this.panning === event.pointerId) {
+        updateMovement(this, event);
+        this.panning = false;
+        this.emit("pan.end");
+      }
     });
 
     // (mouse) wheel listener
     let wheelTimeout = null;
 
-    addEvent(target, "wheel", () => {
+    addEvent(target, "wheel", event => {
+      updateMovement(this, event);
       this.wheelDelta = event.deltaY > 0 ? 1 : -1;
       if (wheelTimeout === null) {
         this.emit("wheel.start");

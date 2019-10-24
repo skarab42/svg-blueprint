@@ -75,7 +75,7 @@ class Pointer {
       this.emit("pan.move");
     });
 
-    addEvent(target, "pointerup", event => {
+    addEvent(target, "pointerup pointerleave", event => {
       if (this.panning === event.pointerId) {
         updateMovement(this, event);
         this.panning = false;

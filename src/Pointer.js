@@ -1,27 +1,53 @@
 import Point from "./Point";
 import { addEvent, setStyle } from "./dom";
 
-function eventFactory({ wheelDelta, panning, movement, position }) {
+function pointerFactory({ event, ...args }) {
   return {
-    wheelDelta,
-    panning,
-    movement: movement.clone(),
-    position: position.clone()
+    position: new Point(),
+    movement: new Point(),
+    wheel: 0,
+    ...args,
+    event
   };
 }
 
-function updatePosition(pointer, event) {
-  const offsets = pointer.target.getBoundingClientRect();
-  pointer.position = new Point(
+function trackPointer(self, event) {
+  // calculate current position relative to the target element
+  const offsets = self.target.getBoundingClientRect();
+  const position = new Point(
     event.pageX - offsets.left,
     event.pageY - offsets.top
   );
+
+  // get the old pointer object
+  const oldPointer = self.pointers.get(event.pointerId);
+
+  // calculate the movements
+  const movement = oldPointer ? position.sub(oldPointer.position) : new Point();
+
+  // set the new pointer
+  self.pointers.set(
+    event.pointerId,
+    pointerFactory({ event, position, movement })
+  );
 }
 
-function updateMovement(pointer, event) {
-  const position = pointer.position.clone();
-  updatePosition(pointer, event);
-  pointer.movement = pointer.position.sub(position);
+function deletePointer(self, event) {
+  self.pointers.delete(event.pointerId);
+}
+
+function emit(self, name, event) {
+  // get the pointer data
+  const pointer = self.pointers.get(event.pointerId);
+
+  // search for callback
+  self.callbacks.forEach(callback => {
+    if (callback.name === "*") {
+      callback.func({ name, pointer });
+    } else if (callback.name === name) {
+      callback.func({ name, pointer });
+    }
+  });
 }
 
 /**
@@ -37,67 +63,73 @@ class Pointer {
     /** @type {Element} Target element. */
     this.target = target;
 
+    /** @type {Map} Pointers collection. */
+    this.pointers = new Map();
+
+    /** @type {null|PointerEvent} Panning event. */
+    this.panEvent = null;
+
     /** @type {array} Callbacks list. */
     this.callbacks = [];
 
-    /** @type {bool} Is panning? */
-    this.panning = false;
-
-    /** @type {Point} Position relative to the target. */
-    this.position = new Point();
-
-    /** @type {Point} Distance since last move. */
-    this.movement = new Point();
-
-    /** @type {int} Wheel delta. */
-    this.wheelDelta = 0; // -1|+1
-
-    // disable browser touch events
+    // disable browser touch events on the target element
     setStyle(target, "touch-action", "none");
 
-    // pan listeners
-    addEvent(target, "pointerdown", event => {
-      if (this.panning) {
-        return;
+    // TRACK POINTERS
+    addEvent(
+      target,
+      "pointerdown pointermove pointerup pointerleave pointercancel",
+      event => {
+        trackPointer(this, event);
       }
-      updateMovement(this, event);
-      this.panning = event.pointerId;
-      this.emit("pan.start");
-      console.log(event);
+    );
+
+    // POINTER PAN
+    addEvent(target, "pointerdown", event => {
+      if (this.panEvent) return;
+      this.panEvent = event;
+      emit(this, "pan.start", event);
     });
 
     addEvent(target, "pointermove", event => {
-      this.emit("move");
-      if (this.panning !== event.pointerId) {
-        return;
-      }
-      updateMovement(this, event);
-      this.emit("pan.move");
-    });
-
-    addEvent(target, "pointerup pointerleave", event => {
-      if (this.panning === event.pointerId) {
-        updateMovement(this, event);
-        this.panning = false;
-        this.emit("pan.end");
+      if (this.panEvent && this.panEvent.pointerId === event.pointerId) {
+        emit(this, "pan.move", event);
       }
     });
 
-    // (mouse) wheel listener
+    addEvent(target, "pointerup pointerleave pointercancel", event => {
+      if (this.panEvent.pointerId === event.pointerId) {
+        this.panEvent = false;
+        emit(this, "pan.end", event);
+      }
+    });
+
+    // MOUSE WHEEL
     let wheelTimeout = null;
 
     addEvent(target, "wheel", event => {
-      updateMovement(this, event);
-      this.wheelDelta = event.deltaY > 0 ? 1 : -1;
+      event.pointerId = "wheel";
+      trackPointer(this, event);
+
+      const pointer = this.pointers.get(event.pointerId);
+      pointer.wheel = event.deltaY > 0 ? 1 : -1;
+
       if (wheelTimeout === null) {
-        this.emit("wheel.start");
+        emit(this, "wheel.start", event);
       }
-      this.emit("wheel.move");
+
+      emit(this, "wheel.move", event);
       clearTimeout(wheelTimeout);
+
       wheelTimeout = setTimeout(() => {
         wheelTimeout = null;
-        this.emit("wheel.end");
+        emit(this, "wheel.end", event);
       }, 120);
+    });
+
+    // CLEANNING
+    addEvent(target, "pointerup pointerleave pointercancel", event => {
+      deletePointer(this, event);
     });
   }
 
@@ -111,23 +143,6 @@ class Pointer {
     const names = name.trim().split(/[\s,]+/);
     names.forEach(name => {
       this.callbacks.push({ name, func });
-    });
-  }
-
-  /**
-   * Emit an event.
-   *
-   * @param {string} name
-   */
-  emit(name) {
-    const data = eventFactory(this);
-    this.callbacks.forEach(callback => {
-      if (callback.name === "*") {
-        callback.func({ name, data });
-      }
-      if (callback.name === name) {
-        callback.func({ name, data });
-      }
     });
   }
 }

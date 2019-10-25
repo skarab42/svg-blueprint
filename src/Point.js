@@ -56,6 +56,38 @@ class Point {
   }
 
   /**
+   * Multiply point and return new Point.
+   *
+   * @param  {float|array|Point} point
+   * @return {Point}
+   */
+  mult(point) {
+    const p1 = new Point(point, point);
+    return new Point(this.x * p1.x, this.y * p1.y);
+  }
+
+  /**
+   * Return the distance betwen the two points.
+   *
+   * @param  {float|array|Point} point
+   * @return {float}
+   */
+  distance(point) {
+    const diff = this.sub(new Point(point));
+    return Math.sqrt(diff.x * diff.x + diff.x * diff.x);
+  }
+
+  /**
+   * Return vector midpoint.
+   *
+   * @param  {float|array|Point} point
+   * @return {float}
+   */
+  midpoint(point) {
+    return this.add(new Point(point).sub(this).mult(0.5));
+  }
+
+  /**
    * Return the values as array.
    *
    * @return {array}

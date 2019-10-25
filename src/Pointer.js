@@ -5,6 +5,9 @@ function pointerFactory({ event, ...args }) {
   return {
     position: new Point(),
     movement: new Point(),
+    distance: null,
+    midpoint: null,
+    scale: 1,
     wheel: 0,
     ...args,
     event
@@ -30,6 +33,16 @@ function trackPointer(self, event) {
     event.pointerId,
     pointerFactory({ event, position, movement })
   );
+}
+
+function onPinch(self, id1, id2, distance = null) {
+  const p1 = self.pointers.get(id1);
+  const p2 = self.pointers.get(id2);
+  p1.distance = p2.distance = p1.position.distance(p2.position);
+  p1.midpoint = p2.midpoint = p1.position.midpoint(p2.position);
+  distance = distance === null ? p2.distance : distance;
+  p1.scale = p2.scale = p1.distance / distance;
+  return { p1, p2 };
 }
 
 function deletePointer(self, event) {
@@ -69,6 +82,9 @@ class Pointer {
     /** @type {null|PointerEvent} Panning event. */
     this.panEvent = null;
 
+    /** @type {null|array<PointerEvent>} Pinch events. */
+    this.pinchEvents = null;
+
     /** @type {array} Callbacks list. */
     this.callbacks = [];
 
@@ -86,7 +102,9 @@ class Pointer {
 
     // POINTER PAN
     addEvent(target, "pointerdown", event => {
-      if (this.panEvent) return;
+      if (this.panEvent || this.pinchEvents) {
+        return;
+      }
       this.panEvent = event;
       emit(this, "pan.start", event);
     });
@@ -98,9 +116,48 @@ class Pointer {
     });
 
     addEvent(target, "pointerup pointerleave pointercancel", event => {
-      if (this.panEvent.pointerId === event.pointerId) {
+      if (this.panEvent && this.panEvent.pointerId === event.pointerId) {
         this.panEvent = false;
         emit(this, "pan.end", event);
+      }
+    });
+
+    // PINCH ZOOM
+    addEvent(target, "pointerdown", event => {
+      if (!this.panEvent || this.pinchEvents) {
+        return;
+      }
+      if (this.panEvent.pointerId !== event.pointerId) {
+        const points = onPinch(this, this.panEvent.pointerId, event.pointerId);
+        this.pinchEvents = [this.panEvent, event, points.p1.distance];
+        this.panEvent = false;
+        emit(this, "pan.end", event);
+        emit(this, "pinch.start", event);
+      }
+    });
+
+    addEvent(target, "pointermove pointerup", event => {
+      if (!this.pinchEvents) {
+        return;
+      }
+
+      const ids = [
+        this.pinchEvents[0].pointerId,
+        this.pinchEvents[1].pointerId
+      ];
+
+      if (!ids.includes(event.pointerId)) {
+        return;
+      }
+
+      onPinch(this, ids[0], ids[1], this.pinchEvents[2]);
+      emit(this, "pinch.move", event);
+    });
+
+    addEvent(target, "pointerup", event => {
+      if (this.pinchEvents) {
+        this.pinchEvents = false;
+        emit(this, "pinch.end", event);
       }
     });
 

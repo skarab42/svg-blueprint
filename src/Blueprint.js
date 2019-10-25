@@ -72,9 +72,11 @@ class Blueprint {
 
     // events listeners
     const updateCursorPosition = ({ event, show }) => {
-      this.updateCursorPosition({ position: event.pointer.position, show });
+      const position = event.pointer.midpoint || event.pointer.position;
+      this.updateCursorPosition({ position, show });
     };
 
+    // pan
     this.pointer.on("pan.start", event => {
       updateCursorPosition({ event, show: true });
     });
@@ -84,7 +86,30 @@ class Blueprint {
       updateCursorPosition({ event, show: true });
     });
 
-    this.pointer.on("pan.end wheel.end", event => {
+    this.pointer.on("pan.end pinch.end wheel.end", event => {
+      updateCursorPosition({ event, show: false });
+    });
+
+    // pinch
+    let pinchScale = null;
+    let pinchTarget = null;
+
+    this.pointer.on("pinch.start", event => {
+      pinchScale = event.pointer.scale;
+      pinchTarget = event.pointer.midpoint;
+      updateCursorPosition({ event, show: true });
+    });
+
+    this.pointer.on("pinch.move", event => {
+      //updateCursorPosition({ event, show: event.name === "pinch.move" });
+      this.zoom({
+        ratio: this.scale + event.pointer.scale - pinchScale,
+        target: pinchTarget
+      });
+      pinchScale = event.pointer.scale;
+    });
+
+    this.pointer.on("pinch.end", event => {
       updateCursorPosition({ event, show: false });
     });
 

@@ -101,7 +101,6 @@ class Blueprint {
     });
 
     this.pointer.on("pinch.move", event => {
-      //updateCursorPosition({ event, show: event.name === "pinch.move" });
       this.zoom({
         ratio: this.scale + event.pointer.scale - pinchScale,
         target: pinchTarget

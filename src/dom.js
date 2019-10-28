@@ -27,13 +27,18 @@ try {
 /**
  * Add passive event listener.
  *
- * @param {Element}  element
- * @param {string}   name
- * @param {function} [callback=null]
+ * @param {Element}      element
+ * @param {array|string} name
+ * @param {function}     [callback=null]
  */
 function addPassiveEventListener(element, name, callback) {
   const capture = supportsPassiveEventListener ? { passive: true } : false;
-  const names = name.trim().split(/[\s,]+/);
+  let names = name;
+
+  if (typeof names === "string") {
+    names = names.trim().split(/[\s,]+/);
+  }
+
   names.forEach(name => {
     if (callback === null) {
       element.removeEventListener(name, callback, capture);

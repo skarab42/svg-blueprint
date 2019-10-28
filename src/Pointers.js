@@ -180,7 +180,7 @@ class Pointers {
       return;
     }
 
-    if (["up", "leave", "cancel", "lostcapture"].includes(eventType)) {
+    if (["up", "leave", "cancel", "lostcapture"].indexOf(eventType) !== -1) {
       if (pointer.panStartPosition) {
         if (pointer.panning) {
           this.emit("pan.end", pointer.clone());

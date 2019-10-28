@@ -73,8 +73,9 @@ class Point {
    * @return {float}
    */
   distance(point) {
-    const diff = this.sub(new Point(point));
-    return Math.sqrt(diff.x * diff.x + diff.x * diff.x);
+    const diff = this.sub(point);
+    const mult = diff.mult(diff);
+    return Math.sqrt(mult.x + mult.y);
   }
 
   /**

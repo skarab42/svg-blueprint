@@ -2,7 +2,7 @@ import settings from "./settings";
 import templates from "./templates";
 import Point from "./point";
 import { setAttribute, setStyle, setTransform, createSVGElement } from "./dom";
-import Pointer from "./pointer";
+import Pointers from "./pointers";
 
 // Unique ID; Incremented each time a Blueprint class is instanciated.
 let uid = 0;
@@ -64,58 +64,45 @@ class Blueprint {
     /** @type {float} Current scale factor. */
     this.scale = 1;
 
-    /** @type {Pointer} Pointer instance. */
-    this.pointer = new Pointer(this.parent);
+    /** @type {Pointers} Pointers instance. */
+    this.pointers = new Pointers(this.parent);
 
     // append the blueprint element to parent element
     this.parent.appendChild(this.elements.blueprint);
 
     // events listeners
-    const updateCursorPosition = ({ event, show }) => {
-      const position = event.pointer.midpoint || event.pointer.position;
-      this.updateCursorPosition({ position, show });
-    };
+    // this.pointers.on("*", event => {
+    //   if (event.type === "move") return;
+    //   console.log(event.type, event.data);
+    // });
+
+    // tap
+    this.pointers.on("tap.end", event => {
+      if (event.data.tapCount === 2) {
+        this.fit();
+      }
+    });
 
     // pan
-    this.pointer.on("pan.start", event => {
-      updateCursorPosition({ event, show: true });
+    let panId = null;
+
+    this.pointers.on("pan.start", event => {
+      if (panId !== null) return;
+      panId = event.data.id;
+      this.pan(event.data.panOffsets);
+      this.updateCursorPosition({ position: event.data.position, show: true });
     });
 
-    this.pointer.on("pan.move", event => {
-      this.pan(event.pointer.movement);
-      updateCursorPosition({ event, show: true });
+    this.pointers.on("pan.move", event => {
+      if (panId !== event.data.id) return;
+      this.pan(event.data.movement);
+      this.updateCursorPosition({ position: event.data.position, show: true });
     });
 
-    this.pointer.on("pan.end pinch.end wheel.end", event => {
-      updateCursorPosition({ event, show: false });
-    });
-
-    // pinch
-    let pinchScale = null;
-    let pinchTarget = null;
-
-    this.pointer.on("pinch.start", event => {
-      pinchScale = event.pointer.scale;
-      pinchTarget = event.pointer.midpoint;
-      updateCursorPosition({ event, show: true });
-    });
-
-    this.pointer.on("pinch.move", event => {
-      this.zoom({
-        ratio: this.scale + event.pointer.scale - pinchScale,
-        target: pinchTarget
-      });
-      pinchScale = event.pointer.scale;
-    });
-
-    this.pointer.on("pinch.end", event => {
-      updateCursorPosition({ event, show: false });
-    });
-
-    // pointer wheel
-    this.pointer.on("wheel.move", event => {
-      updateCursorPosition({ event, show: true });
-      this.zoom({ delta: event.pointer.wheel, target: event.pointer.position });
+    this.pointers.on("pan.end", event => {
+      if (panId !== event.data.id) return;
+      this.hide("cursor");
+      panId = null;
     });
   }
 

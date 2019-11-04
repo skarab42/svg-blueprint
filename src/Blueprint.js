@@ -13,6 +13,9 @@ import { setStyle, setAttribute, setTransform } from "./dom";
 // Unique ID; Incremented each time a Blueprint class is instanciated.
 let uid = 0;
 
+// Firefox detection
+const isFirefox = !!navigator.userAgent.match(/firefox/i);
+
 /**
  * Get and check parent Element from settings object.
  *
@@ -110,8 +113,6 @@ class Blueprint {
         setStyle(this.elements[key], "display", display ? null : "none");
       }
     });
-
-    this.redraw();
   }
 
   hide(what, hide = true) {
@@ -144,13 +145,26 @@ class Blueprint {
     setAttribute(this.elements.gridPattern10, "d", gridPath);
     setAttribute(this.elements.gridPattern100, "d", gridPath);
 
+    // scale stroke width
+    if (this.settings.nonScalingStroke === true) {
+      const strokeWidth = this.settings.strokeWidth / this.scale;
+      setStyle(this.elements.workspace, "stroke-width", strokeWidth);
+    }
+
     // translate workspace
-    // setAttribute(this.elements.workspace, "stroke-width", 1 / this.scale);
-    setTransform(this.elements.workspace, "scale", this.scale);
-    setTransform(this.elements.workspace, "translate", [
-      -this.position.x / this.scale,
-      -this.position.y / this.scale
+    setAttribute(this.elements.workspace, "viewBox", [
+      this.position.x / this.scale,
+      this.position.y / this.scale,
+      1 / this.scale,
+      1 / this.scale
     ]);
+
+    // Force redraw to fix blurry lines
+    if (isFirefox) {
+      const clone = this.elements.workspace.cloneNode(true);
+      this.elements.canvas.replaceChild(clone, this.elements.workspace);
+      this.elements.workspace = clone;
+    }
   }
 
   onPointerMove(event) {
@@ -160,6 +174,7 @@ class Blueprint {
   onPanStart(event) {
     this.onPointerMove(event);
     this.show("cursor");
+    this.redraw();
   }
 
   onPan(event) {
@@ -170,11 +185,13 @@ class Blueprint {
   onPanEnd(event) {
     this.onPointerMove(event);
     this.hide("cursor");
+    this.redraw();
   }
 
   onZoomStart(event) {
     this.onPointerMove(event);
     this.show("cursor");
+    this.redraw();
   }
 
   onZoom(event) {
@@ -185,6 +202,7 @@ class Blueprint {
   onZoomEnd(event) {
     this.onPointerMove(event);
     this.hide("cursor");
+    this.redraw();
   }
 
   move(point) {

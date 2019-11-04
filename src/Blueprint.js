@@ -241,6 +241,18 @@ class Blueprint {
   }
 
   /**
+   * Return the center point of the workspace.
+   *
+   * @return {Point}
+   */
+  getWorkspaceCenter() {
+    return new Point(
+      this.elements.blueprint.offsetWidth / 2,
+      this.elements.blueprint.offsetHeight / 2
+    );
+  }
+
+  /**
    * Zoom the workspace.
    *
    * @param {float|object} [scale={}]          Scale ratio or scale options.
@@ -299,6 +311,13 @@ class Blueprint {
     );
 
     this.redraw();
+  }
+
+  /**
+   * Center the view at [0, 0].
+   */
+  center() {
+    this.move(this.getWorkspaceCenter().neg());
   }
 }
 

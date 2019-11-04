@@ -6,3 +6,5 @@ const blueprint = new sbp.Blueprint({
 
 // blueprint.append('rect', { width: 300, height: 300 });
 // blueprint.fit();
+
+blueprint.center()

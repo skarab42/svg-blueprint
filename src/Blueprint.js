@@ -116,6 +116,17 @@ class Blueprint {
     });
   }
 
+  /**
+   * Show/Hide an element.
+   *
+   * - show("axis");
+   * - show("axis grid");
+   * - show("axis grid", false);
+   * - show(["axis", "grid"], true);
+   *
+   * @param {string|array} what axis, grid, etc...
+   * @param {bool}         [display=true]
+   */
   show(what, display = true) {
     if (!Array.isArray(what)) {
       what = what.split(/[\s,]+/);
@@ -128,10 +139,24 @@ class Blueprint {
     });
   }
 
+  /**
+   * Hide/Show an element.
+   *
+   * - hide("axis");
+   * - hide("axis grid");
+   * - hide("axis grid", false);
+   * - hide(["axis", "grid"], true);
+   *
+   * @param {string} what axis, grid, etc...
+   * @param {bool}   [hide=true]
+   */
   hide(what, hide = true) {
     this.show(what, !hide);
   }
 
+  /**
+   * Redraw the workspace.
+   */
   redraw() {
     // translate axis
     setTransform(this.elements.axisX, "translate", [0, -this.position.y]);
@@ -193,18 +218,34 @@ class Blueprint {
     this.redraw();
   }
 
+  /**
+   * Move the workspace at position.
+   *
+   * @param {Point} point
+   */
   move(point) {
     this.position = new Point(point);
 
     this.redraw();
   }
 
+  /**
+   * Move the workspace by offsets.
+   *
+   * @param {Point} point
+   */
   pan(point) {
     this.position = this.position.sub(point);
 
     this.redraw();
   }
 
+  /**
+   * Zoom the workspace.
+   *
+   * @param {float}  delta  Amount of scale to add, based on zoomFactor setting.
+   * @param {object} target Zoom target point, by default center of workspace.
+   */
   zoom(delta, target = null) {
     // old scale
     const oldScale = this.scale;

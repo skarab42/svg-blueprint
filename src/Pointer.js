@@ -24,6 +24,11 @@ class Pointer {
     this.panOffsets = new Point();
   }
 
+  /**
+   * Clone and return the new pointer.
+   *
+   * @return {Pointer}
+   */
   clone() {
     const clone = {};
     const keys = Object.keys(this);

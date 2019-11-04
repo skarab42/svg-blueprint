@@ -187,10 +187,26 @@ function setAttribute(element, name, value = null) {
   }
 }
 
+/**
+ * Create en return a DOM Element from a string.
+ *
+ * @param {string} string
+ * @param {string} [mimeType="application/xml"]
+ *
+ * @return {Element}
+ */
 function fromString(string, mimeType = "application/xml") {
   return new DOMParser().parseFromString(string, mimeType);
 }
 
+/**
+ * Create en return a DOM Element.
+ *
+ * @param {string}      string
+ * @param {null|object} [attributes=null]
+ *
+ * @return {Element}
+ */
 function createElement(name, attributes = null) {
   const element = document.createElement(name);
 
@@ -201,6 +217,14 @@ function createElement(name, attributes = null) {
   return element;
 }
 
+/**
+ * Create en return a SVG Element.
+ *
+ * @param {string}      string
+ * @param {null|object} [attributes=null]
+ *
+ * @return {SVGElement}
+ */
 function createSVGElement(name, attributes = null) {
   let element = null;
 

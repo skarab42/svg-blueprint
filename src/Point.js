@@ -78,6 +78,15 @@ class Point {
   }
 
   /**
+   * Return negative point.
+   *
+   * @return {Point}
+   */
+  neg() {
+    return new Point(-this.x, -this.y);
+  }
+
+  /**
    * Return the distance betwen the two points.
    *
    * @param  {float|array|Point} point

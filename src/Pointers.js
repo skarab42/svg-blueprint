@@ -59,6 +59,9 @@ class Pointers {
     /** @type {int} Tap timeout ID. */
     this.tapTimeout = null;
 
+    /** @type {int} Wheel timeout ID. */
+    this.wheelTimeout = null;
+
     // disable browser touch events on the target element
     setStyle(target, "touch-action", "none");
 
@@ -75,20 +78,49 @@ class Pointers {
         this.deletePointer(pointerEvent.pointerId);
       }
     );
+
+    // mouse wheel (not a pointer event, add for convenience)
+    addEvent(target, "wheel", mouseEvent => {
+      this.onMouseWheel(mouseEvent);
+    });
   }
 
+  /**
+   * Has pointer id.
+   *
+   * @param {int} id
+   *
+   * @return {Boolean}
+   */
   hasPointer(id) {
     return this.pointers.has(id);
   }
 
+  /**
+   * Get pointer by id.
+   *
+   * @param {int} id
+   *
+   * @return {null|Pointer}
+   */
   getPointer(id) {
     return this.pointers.get(id);
   }
 
+  /**
+   * Set new pointer.
+   *
+   * @param {Pointer} pointer
+   */
   setPointer(pointer) {
     this.pointers.set(pointer.id, pointer);
   }
 
+  /**
+   * Delete pointer by id.
+   *
+   * @param {int} id
+   */
   deletePointer(id) {
     if (this.pointers.has(id)) {
       this.pointers.delete(id);
@@ -235,6 +267,30 @@ class Pointers {
     // recognizers
     this.tapRecognizer(eventType, pointer);
     this.panRecognizer(eventType, pointer);
+  }
+
+  /**
+   * On mouse wheel...
+   *
+   * @param {MouseEvent} mouseEvent
+   */
+  onMouseWheel(mouseEvent) {
+    const delta = mouseEvent.deltaY > 0 ? 1 : -1;
+    const pointer = new Pointer(mouseEvent);
+    pointer.position = this.getPosition(mouseEvent);
+    pointer.delta = delta;
+
+    if (this.wheelTimeout === null) {
+      this.emit("wheel.start", pointer);
+    }
+
+    this.emit("wheel.move", pointer);
+    clearTimeout(this.wheelTimeout);
+
+    this.wheelTimeout = setTimeout(() => {
+      this.wheelTimeout = null;
+      this.emit("wheel.end", pointer);
+    }, 120);
   }
 
   /**

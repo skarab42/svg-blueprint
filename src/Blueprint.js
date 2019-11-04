@@ -1,14 +1,8 @@
 import settings from "./settings";
 import templates from "./templates";
-
 import Point from "./point";
-
-import PanEvent from "./PanEvent";
-import ZoomEvent from "./ZoomEvent";
-
+import Pointers from "./pointers";
 import { setStyle, setAttribute, setTransform } from "./dom";
-
-// import Pointers from "./pointers";
 
 // Unique ID; Incremented each time a Blueprint class is instanciated.
 let uid = 0;
@@ -76,30 +70,49 @@ class Blueprint {
     /** @type {float} Current scale factor. */
     this.scale = 1;
 
+    /** @type {int} Grid size. */
     this.gridSize = 100;
+
+    /** @type {Pointers} Pointers instance. */
+    this.pointers = new Pointers(this.parent);
 
     // append the blueprint element to parent element
     this.parent.appendChild(this.elements.blueprint);
 
-    // add pan event
-    new PanEvent({
-      target: this.parent,
-      callbacks: {
-        move: event => this.onPointerMove(event),
-        start: event => this.onPanStart(event),
-        pan: event => this.onPan(event),
-        end: event => this.onPanEnd(event)
-      }
+    // pan
+    let panId = null;
+
+    this.pointers.on("pan.start", event => {
+      if (panId !== null) return;
+      panId = event.data.id;
+      this.pan(event.data.panOffsets);
+      this.updateCursorPosition({ position: event.data.position, show: true });
     });
 
-    // add zoom event
-    new ZoomEvent({
-      target: this.parent,
-      callbacks: {
-        start: event => this.onZoomStart(event),
-        zoom: event => this.onZoom(event),
-        end: event => this.onZoomEnd(event)
-      }
+    this.pointers.on("pan.move", event => {
+      if (panId !== event.data.id) return;
+      this.pan(event.data.movement);
+      this.updateCursorPosition({ position: event.data.position, show: true });
+    });
+
+    this.pointers.on("pan.end", event => {
+      if (panId !== event.data.id) return;
+      this.hide("cursor");
+      panId = null;
+    });
+
+    // mouse wheel
+    this.pointers.on("wheel.start", event => {
+      this.updateCursorPosition({ position: event.data.position, show: true });
+    });
+
+    this.pointers.on("wheel.move", event => {
+      this.zoom(event.data.delta, event.data.position);
+      this.updateCursorPosition({ position: event.data.position, show: true });
+    });
+
+    this.pointers.on("wheel.end", () => {
+      this.hide("cursor");
     });
   }
 
@@ -167,41 +180,16 @@ class Blueprint {
     }
   }
 
-  onPointerMove(event) {
-    this.cursor = event.position;
-  }
-
-  onPanStart(event) {
-    this.onPointerMove(event);
-    this.show("cursor");
-    this.redraw();
-  }
-
-  onPan(event) {
-    this.onPointerMove(event);
-    this.pan(event.movement);
-  }
-
-  onPanEnd(event) {
-    this.onPointerMove(event);
-    this.hide("cursor");
-    this.redraw();
-  }
-
-  onZoomStart(event) {
-    this.onPointerMove(event);
-    this.show("cursor");
-    this.redraw();
-  }
-
-  onZoom(event) {
-    this.onPointerMove(event);
-    this.zoom(event.delta, event.position);
-  }
-
-  onZoomEnd(event) {
-    this.onPointerMove(event);
-    this.hide("cursor");
+  /**
+   * Update the cursor position.
+   *
+   * @param {object} [options={}]
+   * @param {Point}  options.position
+   * @param {bool}   [options.show=false]
+   */
+  updateCursorPosition({ position, show = false } = {}) {
+    this.cursor = new Point(position);
+    this.show("cursor", show);
     this.redraw();
   }
 

@@ -5,7 +5,7 @@
   "main": "./src/index.js",
   "module": "./src/index.js",
   "scripts": {
-    "serv:dev": "budo ./src/index.js -s svg-blueprint.js --dir ./demo --live --open -- -r ./src/index.js:svg-blueprint -t babelify -p licensify",
+    "dev": "budo ./src/index.js -s svg-blueprint.js --dir ./demo --live --open -- -r ./src/index.js:svg-blueprint -t babelify -p licensify",
     "format": "prettier-eslint --write ./src/**/*.js",
     "lint": "eslint ./src/**/*.js"
   },

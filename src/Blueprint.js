@@ -1,8 +1,14 @@
 import settings from "./settings";
 import templates from "./templates";
+
 import Point from "./point";
-import { setAttribute, setStyle, setTransform, createSVGElement } from "./dom";
-import Pointers from "./pointers";
+
+import PanEvent from "./PanEvent";
+import ZoomEvent from "./ZoomEvent";
+
+import { setStyle, setAttribute, setTransform } from "./dom";
+
+// import Pointers from "./pointers";
 
 // Unique ID; Incremented each time a Blueprint class is instanciated.
 let uid = 0;
@@ -61,182 +67,147 @@ class Blueprint {
     /** @type {Point} Current position. */
     this.position = new Point(0, 0);
 
+    /** @type {Point} Cursor position. */
+    this.cursor = new Point(0, 0);
+
     /** @type {float} Current scale factor. */
     this.scale = 1;
 
-    /** @type {Pointers} Pointers instance. */
-    this.pointers = new Pointers(this.parent);
+    this.gridSize = 100;
 
     // append the blueprint element to parent element
     this.parent.appendChild(this.elements.blueprint);
 
-    // events listeners
-    // this.pointers.on("*", event => {
-    //   if (event.type === "move") return;
-    //   console.log(event.type, event.data);
-    // });
-
-    // tap
-    this.pointers.on("tap.end", event => {
-      if (event.data.tapCount === 2) {
-        this.fit();
+    // add pan event
+    new PanEvent({
+      target: this.parent,
+      callbacks: {
+        move: event => this.onPointerMove(event),
+        start: event => this.onPanStart(event),
+        pan: event => this.onPan(event),
+        end: event => this.onPanEnd(event)
       }
     });
 
-    // pan
-    let panId = null;
-
-    this.pointers.on("pan.start", event => {
-      if (panId !== null) return;
-      panId = event.data.id;
-      this.pan(event.data.panOffsets);
-      this.updateCursorPosition({ position: event.data.position, show: true });
-    });
-
-    this.pointers.on("pan.move", event => {
-      if (panId !== event.data.id) return;
-      this.pan(event.data.movement);
-      this.updateCursorPosition({ position: event.data.position, show: true });
-    });
-
-    this.pointers.on("pan.end", event => {
-      if (panId !== event.data.id) return;
-      this.hide("cursor");
-      panId = null;
+    // add zoom event
+    new ZoomEvent({
+      target: this.parent,
+      callbacks: {
+        start: event => this.onZoomStart(event),
+        zoom: event => this.onZoom(event),
+        end: event => this.onZoomEnd(event)
+      }
     });
   }
 
-  /**
-   * Update the cursor position.
-   *
-   * @param {object} [options={}]
-   * @param {Point}  options.position
-   * @param {bool}   [options.show=false]
-   */
-  updateCursorPosition({ position, show = false } = {}) {
-    position = new Point(position).toArray();
-    setTransform(this.elements.cursor, { translate: position });
-    this.show("cursor", show);
-  }
-
-  /**
-   * Redraw the workspace.
-   */
-  redraw() {
-    // update grid position.
-    setAttribute(this.elements.gridPattern, this.position);
-    // update axis position
-    setTransform(this.elements.axis, "translate", this.position.toArray());
-    // update workspace position and scale
-    setTransform(this.elements.workspace, {
-      translate: this.position.toArray(),
-      scale: this.scale
-    });
-    // update workspace stroke width
-    setStyle(
-      this.elements.workspace,
-      "stroke-width",
-      this.settings.nonScalingStroke
-        ? this.settings.strokeWidth / this.scale
-        : null
-    );
-  }
-
-  /**
-   * Show/Hide an element.
-   *
-   * - show("axis");
-   * - show("axis grid");
-   * - show("axis grid", false);
-   * - show(["axis", "grid"], true);
-   *
-   * @param {string|array} what axis, grid, etc...
-   * @param {bool}         [display=true]
-   */
   show(what, display = true) {
     if (!Array.isArray(what)) {
       what = what.split(/[\s,]+/);
     }
+
     what.forEach(key => {
       if (this.elements[key]) {
         setStyle(this.elements[key], "display", display ? null : "none");
       }
     });
+
+    this.redraw();
   }
 
-  /**
-   * Hide/Show an element.
-   *
-   * - hide("axis");
-   * - hide("axis grid");
-   * - hide("axis grid", false);
-   * - hide(["axis", "grid"], true);
-   *
-   * @param {string} what axis, grid, etc...
-   * @param {bool}   [hide=true]
-   */
   hide(what, hide = true) {
     this.show(what, !hide);
   }
 
-  /**
-   * Move the workspace at position.
-   *
-   * @param {Point} point
-   * @param {bool}  [redraw=true]
-   */
-  move(point, redraw = true) {
-    this.position = new Point(point);
-    redraw && this.redraw();
-  }
+  redraw() {
+    // translate axis
+    setTransform(this.elements.axisX, "translate", [0, -this.position.y]);
+    setTransform(this.elements.axisY, "translate", [-this.position.x, 0]);
 
-  /**
-   * Move the workspace by offsets.
-   *
-   * @param {Point} point
-   * @param {bool}  [redraw=true]
-   */
-  pan(point, redraw = true) {
-    this.move(this.position.add(new Point(point)), redraw);
-  }
+    // translate cursor
+    setTransform(this.elements.cursorX, "translate", [0, this.cursor.y]);
+    setTransform(this.elements.cursorY, "translate", [this.cursor.x, 0]);
 
-  /**
-   * Return the center point of the workspace.
-   *
-   * @return {Point}
-   */
-  getWorkspaceCenter() {
-    return new Point(
-      this.elements.blueprint.offsetWidth / 2,
-      this.elements.blueprint.offsetHeight / 2
+    // translate grid
+    setAttribute(
+      this.elements.gridPattern,
+      "patternTransform",
+      `translate(${-this.position.x}, ${-this.position.y})`
     );
+
+    // scale grid
+    const gridSize = { width: this.gridSize, height: this.gridSize };
+    const gridPath = `M ${this.gridSize} 0 L 0 0 0 ${this.gridSize}`;
+
+    setAttribute(this.elements.gridFill10, gridSize);
+    setAttribute(this.elements.gridFill100, gridSize);
+    setAttribute(this.elements.gridPattern, gridSize);
+    setAttribute(this.elements.gridPattern10, "d", gridPath);
+    setAttribute(this.elements.gridPattern100, "d", gridPath);
+
+    // translate workspace
+    // setAttribute(this.elements.workspace, "stroke-width", 1 / this.scale);
+    setTransform(this.elements.workspace, "scale", this.scale);
+    setTransform(this.elements.workspace, "translate", [
+      -this.position.x / this.scale,
+      -this.position.y / this.scale
+    ]);
   }
 
-  /**
-   * Zoom the workspace.
-   *
-   * @param {float|object} [scale={}]          Scale ratio or scale options.
-   * @param {float}        [scale.ratio=1]     New scale ratio, used by center view etc...
-   * @param {float}        [scale.delta=null]  Amount of scale to add, based on zoomFactor setting.
-   * @param {object}       [scale.target=null] Zoom target point, by default center of workspace.
-   */
-  zoom(scale = {}) {
+  onPointerMove(event) {
+    this.cursor = event.position;
+  }
+
+  onPanStart(event) {
+    this.onPointerMove(event);
+    this.show("cursor");
+  }
+
+  onPan(event) {
+    this.onPointerMove(event);
+    this.pan(event.movement);
+  }
+
+  onPanEnd(event) {
+    this.onPointerMove(event);
+    this.hide("cursor");
+  }
+
+  onZoomStart(event) {
+    this.onPointerMove(event);
+    this.show("cursor");
+  }
+
+  onZoom(event) {
+    this.onPointerMove(event);
+    this.zoom(event.delta, event.position);
+  }
+
+  onZoomEnd(event) {
+    this.onPointerMove(event);
+    this.hide("cursor");
+  }
+
+  move(point) {
+    this.position = new Point(point);
+
+    this.redraw();
+  }
+
+  pan(point) {
+    this.position = this.position.sub(point);
+
+    this.redraw();
+  }
+
+  zoom(delta, target = null) {
+    // old scale
     const oldScale = this.scale;
 
-    if (typeof scale !== "object") {
-      scale = { ratio: scale };
-    }
+    // zoom direction
+    delta *= this.settings.zoomDirection;
 
-    // merge defaults settings
-    scale = { ratio: 1, delta: null, target: null, ...scale };
-
-    // scale by ratio/delta ?
-    if (scale.delta !== null) {
-      scale.delta *= this.settings.zoomDirection;
-      this.scale += scale.delta * this.settings.zoomFactor * this.scale;
-    } else {
-      this.scale = scale.ratio;
-    }
+    // scale by delta x zoomFactor
+    this.scale += delta * this.settings.zoomFactor * this.scale;
 
     // zoom limit
     if (this.scale < this.settings.zoomLimit.min) {
@@ -245,119 +216,28 @@ class Blueprint {
       this.scale = this.settings.zoomLimit.max;
     }
 
-    // calculate new grid size
+    // (calculate) new grid size
     let gridSize = this.scale
       .toString()
       .replace(".", "")
       .replace(/e.*/, "")
       .replace(/^0+/, "")
       .replace(/^([1-9])/, "$1.");
-    gridSize = parseFloat(gridSize) * 100;
-    gridSize = { width: gridSize, height: gridSize };
+    this.gridSize = parseFloat(gridSize) * 100;
 
-    // update grid size
-    setAttribute(this.elements.grid10, gridSize);
-    setAttribute(this.elements.gridPattern, gridSize);
+    // target point, default to center of workspace
+    target = target ? new Point(target) : this.getWorkspaceCenter();
 
-    // calculate x and y based on target coords
-    scale.target = scale.target || this.getWorkspaceCenter();
+    // mouse coordinates at current scale
+    const coords = target.div(oldScale).add(this.position.div(oldScale));
 
-    const coords = new Point(
-      (scale.target.x - this.position.x) / oldScale,
-      (scale.target.y - this.position.y) / oldScale
+    // new position
+    this.position = new Point(
+      coords.x * this.scale - target.x,
+      coords.y * this.scale - target.y
     );
 
-    const position = new Point(
-      -coords.x * this.scale + scale.target.x,
-      -coords.y * this.scale + scale.target.y
-    );
-
-    this.move(position);
-  }
-
-  /**
-   * Center the view at [0, 0].
-   */
-  center() {
-    this.move(this.getWorkspaceCenter());
-  }
-
-  /**
-   * Fit workspace to view.
-   */
-  fit() {
-    const $blueprint = this.elements.blueprint;
-    const $workspace = this.elements.workspace;
-
-    let workspace = $workspace.getBoundingClientRect();
-    let width = workspace.width / this.scale;
-    let height = workspace.height / this.scale;
-
-    // no contents...
-    if (!width || !height) {
-      this.center();
-      return;
-    }
-
-    // zoom to fit the view minus the padding
-    const padding = this.settings.fitPadding * 2;
-    const scaleX = ($blueprint.offsetWidth - padding) / width;
-    const scaleY = ($blueprint.offsetHeight - padding) / height;
-    const scale = Math.min(scaleX, scaleY);
-
-    this.zoom(scale);
-
-    // move the workspace at center of the view
-    const blueprint = $blueprint.getBoundingClientRect();
-    workspace = $workspace.getBoundingClientRect();
-    width = (blueprint.width - workspace.width) / 2;
-    height = (blueprint.height - workspace.height) / 2;
-
-    this.pan({
-      x: -workspace.left + blueprint.left + width,
-      y: -workspace.top + blueprint.top + height
-    });
-  }
-
-  /**
-   * Create an SVG element with default properties.
-   *
-   * - remove "stroke-width" attribute
-   * - remove "stroke-width, stroke, fill" css properties
-   * - set default "stroke" and "fill" attributes from settings
-   * - "stroke-width, stroke, fill" can be overwritten by attribute parameter
-   *
-   * @param {string} name
-   * @param {object} [attributes={}]
-   *
-   * @return {SVGElement}
-   */
-  createElement(name, attributes = {}) {
-    return createSVGElement(name, {
-      "stroke-width": null,
-      stroke: this.settings.stroke,
-      fill: this.settings.fill,
-      style: {
-        "stroke-width": null,
-        stroke: null,
-        fill: null
-      },
-      ...attributes
-    });
-  }
-
-  /**
-   * Create and append to the workspace an SVG element with default properties.
-   *
-   * @param {string} name
-   * @param {object} [attributes={}]
-   *
-   * @return {SVGElement}
-   */
-  append(name, attributes = {}) {
-    const element = this.createElement(name, attributes);
-    this.elements.workspace.appendChild(element);
-    return element;
+    this.redraw();
   }
 }
 

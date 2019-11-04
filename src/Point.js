@@ -67,6 +67,17 @@ class Point {
   }
 
   /**
+   * Divide point and return new Point.
+   *
+   * @param  {float|array|Point} point
+   * @return {Point}
+   */
+  div(point) {
+    const p1 = new Point(point, point);
+    return new Point(this.x / p1.x, this.y / p1.y);
+  }
+
+  /**
    * Return the distance betwen the two points.
    *
    * @param  {float|array|Point} point

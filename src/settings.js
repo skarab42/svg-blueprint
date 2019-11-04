@@ -4,8 +4,8 @@
  * @type {object}
  */
 const settings = {
-  width: "100%",
-  height: "100%",
+  width: "400px",
+  height: "300px",
   parentElement: null,
   parentSelector: "body",
   className: "svg-blueprint",

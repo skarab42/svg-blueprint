@@ -4,5 +4,5 @@ const blueprint = new sbp.Blueprint({
   parentSelector: "main"
 });
 
-blueprint.append('rect', { width: 300, height: 300 });
-blueprint.fit();
+// blueprint.append('rect', { width: 300, height: 300 });
+// blueprint.fit();

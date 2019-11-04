@@ -319,6 +319,43 @@ class Blueprint {
   center() {
     this.move(this.getWorkspaceCenter().neg());
   }
+
+  /**
+   * Fit workspace to view.
+   */
+  fit() {
+    const $blueprint = this.elements.blueprint.cloneNode(true);
+    const $workspace = this.elements.workspace.cloneNode(true);
+
+    let workspace = $workspace.getBoundingClientRect();
+    let width = workspace.width / this.scale;
+    let height = workspace.height / this.scale;
+
+    // no contents...
+    if (!width || !height) {
+      this.center();
+      return;
+    }
+
+    // zoom to fit the view minus the padding
+    const padding = this.settings.fitPadding * 2;
+    const scaleX = ($blueprint.offsetWidth - padding) / width;
+    const scaleY = ($blueprint.offsetHeight - padding) / height;
+    const scale = Math.min(scaleX, scaleY);
+
+    this.zoom(scale);
+
+    // move the workspace at center of the view
+    const blueprint = $blueprint.getBoundingClientRect();
+    workspace = $workspace.getBoundingClientRect();
+    width = (blueprint.width - workspace.width) / 2;
+    height = (blueprint.height - workspace.height) / 2;
+
+    this.pan({
+      x: -workspace.left + blueprint.left + width,
+      y: -workspace.top + blueprint.top + height
+    });
+  }
 }
 
 export default Blueprint;

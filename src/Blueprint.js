@@ -107,7 +107,7 @@ class Blueprint {
     });
 
     this.pointers.on("wheel.move", event => {
-      this.zoom(event.data.delta, event.data.position);
+      this.zoom({ delta: event.data.delta, target: event.data.position });
       this.updateCursorPosition({ position: event.data.position, show: true });
     });
 
@@ -243,18 +243,30 @@ class Blueprint {
   /**
    * Zoom the workspace.
    *
-   * @param {float}  delta  Amount of scale to add, based on zoomFactor setting.
-   * @param {object} target Zoom target point, by default center of workspace.
+   * @param {float|object} [scale={}]          Scale ratio or scale options.
+   * @param {float}        [scale.ratio=1]     New scale ratio, used by center view etc...
+   * @param {float}        [scale.delta=null]  Amount of scale to add, based on zoomFactor setting.
+   * @param {object}       [scale.target=null] Zoom target point, by default center of workspace.
    */
-  zoom(delta, target = null) {
+  zoom(scale = {}) {
     // old scale
     const oldScale = this.scale;
 
-    // zoom direction
-    delta *= this.settings.zoomDirection;
+    // old way...
+    if (typeof scale !== "object") {
+      scale = { ratio: scale };
+    }
 
-    // scale by delta x zoomFactor
-    this.scale += delta * this.settings.zoomFactor * this.scale;
+    // merge defaults settings
+    scale = { ratio: 1, delta: null, target: null, ...scale };
+
+    // scale by ratio/delta ?
+    if (scale.delta !== null) {
+      scale.delta *= this.settings.zoomDirection;
+      this.scale += scale.delta * this.settings.zoomFactor * this.scale;
+    } else {
+      this.scale = scale.ratio;
+    }
 
     // zoom limit
     if (this.scale < this.settings.zoomLimit.min) {
@@ -273,15 +285,17 @@ class Blueprint {
     this.gridSize = parseFloat(gridSize) * 100;
 
     // target point, default to center of workspace
-    target = target ? new Point(target) : this.getWorkspaceCenter();
+    scale.target = scale.target
+      ? new Point(scale.target)
+      : this.getWorkspaceCenter();
 
     // mouse coordinates at current scale
-    const coords = target.div(oldScale).add(this.position.div(oldScale));
+    const coords = scale.target.div(oldScale).add(this.position.div(oldScale));
 
     // new position
     this.position = new Point(
-      coords.x * this.scale - target.x,
-      coords.y * this.scale - target.y
+      coords.x * this.scale - scale.target.x,
+      coords.y * this.scale - scale.target.y
     );
 
     this.redraw();

@@ -35,8 +35,12 @@ export default templateFactory(`
       viewBox="0 0 1 1"
       style="position: absolute; overflow: visible; fill: {{fill}}; stroke: {{stroke}}; stroke-width: {{strokeWidth}};"
       xmlns="http://www.w3.org/2000/svg">
-      <rect x="10" y="10" width="100" height="100" />
-      <circle cx="0" cy="0" r="100" />
+
+      <g data-key="bbox">
+        <rect x="0" y="-100" width="100" height="100" />
+        <circle cx="50" cy="50" r="50" />
+      </g>
+
     </svg>
 
   </svg>

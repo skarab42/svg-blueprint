@@ -79,6 +79,13 @@ class Blueprint {
     // append the blueprint element to parent element
     this.parent.appendChild(this.elements.blueprint);
 
+    // tap
+    this.pointers.on("tap.end", event => {
+      if (event.data.tapCount === 2) {
+        this.fit();
+      }
+    });
+
     // pan
     let panId = null;
 
@@ -201,6 +208,7 @@ class Blueprint {
     if (isFirefox) {
       const clone = this.elements.workspace.cloneNode(true);
       this.elements.canvas.replaceChild(clone, this.elements.workspace);
+      this.elements.bbox = clone.querySelector('[data-key="bbox"]');
       this.elements.workspace = clone;
     }
   }
@@ -324,10 +332,7 @@ class Blueprint {
    * Fit workspace to view.
    */
   fit() {
-    const $blueprint = this.elements.blueprint.cloneNode(true);
-    const $workspace = this.elements.workspace.cloneNode(true);
-
-    let workspace = $workspace.getBoundingClientRect();
+    let workspace = this.elements.bbox.getBoundingClientRect();
     let width = workspace.width / this.scale;
     let height = workspace.height / this.scale;
 
@@ -339,15 +344,15 @@ class Blueprint {
 
     // zoom to fit the view minus the padding
     const padding = this.settings.fitPadding * 2;
-    const scaleX = ($blueprint.offsetWidth - padding) / width;
-    const scaleY = ($blueprint.offsetHeight - padding) / height;
+    const scaleX = (this.elements.blueprint.offsetWidth - padding) / width;
+    const scaleY = (this.elements.blueprint.offsetHeight - padding) / height;
     const scale = Math.min(scaleX, scaleY);
 
     this.zoom(scale);
 
     // move the workspace at center of the view
-    const blueprint = $blueprint.getBoundingClientRect();
-    workspace = $workspace.getBoundingClientRect();
+    const blueprint = this.elements.blueprint.getBoundingClientRect();
+    workspace = this.elements.bbox.getBoundingClientRect();
     width = (blueprint.width - workspace.width) / 2;
     height = (blueprint.height - workspace.height) / 2;
 

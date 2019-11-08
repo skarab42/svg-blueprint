@@ -2,7 +2,7 @@ import settings from "./settings";
 import templates from "./templates";
 import Point from "./point";
 import Pointers from "./pointers";
-import { setStyle, setAttribute, setTransform } from "./dom";
+import { setStyle, setAttribute, setTransform, createSVGElement } from "./dom";
 
 // Unique ID; Incremented each time a Blueprint class is instanciated.
 let uid = 0;
@@ -385,6 +385,47 @@ class Blueprint {
       x: -workspace.left + blueprint.left + width,
       y: -workspace.top + blueprint.top + height
     });
+  }
+
+  /**
+   * Create an SVG element with default properties.
+   *
+   * - remove "stroke-width" attribute
+   * - remove "stroke-width, stroke, fill" css properties
+   * - set default "stroke" and "fill" attributes from settings
+   * - "stroke-width, stroke, fill" can be overwritten by attribute parameter
+   *
+   * @param {string} name
+   * @param {object} [attributes={}]
+   *
+   * @return {SVGElement}
+   */
+  createElement(name, attributes = {}) {
+    return createSVGElement(name, {
+      "stroke-width": null,
+      stroke: this.settings.stroke,
+      fill: this.settings.fill,
+      style: {
+        "stroke-width": null,
+        stroke: null,
+        fill: null
+      },
+      ...attributes
+    });
+  }
+
+  /**
+   * Create and append to the workspace an SVG element with default properties.
+   *
+   * @param {string} name
+   * @param {object} [attributes={}]
+   *
+   * @return {SVGElement}
+   */
+  append(name, attributes = {}) {
+    const element = this.createElement(name, attributes);
+    this.elements.bbox.appendChild(element);
+    return element;
   }
 }
 

@@ -36,10 +36,7 @@ export default templateFactory(`
       style="position: absolute; overflow: visible; fill: {{fill}}; stroke: {{stroke}}; stroke-width: {{strokeWidth}};"
       xmlns="http://www.w3.org/2000/svg">
 
-      <g data-key="bbox">
-        <rect x="0" y="-100" width="100" height="100" />
-        <circle cx="50" cy="50" r="50" />
-      </g>
+      <g data-key="bbox"></g>
 
     </svg>
 

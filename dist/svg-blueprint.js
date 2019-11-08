@@ -1862,7 +1862,7 @@ var _default = {
 };
 exports["default"] = _default;
 
-},{"./blueprint":9}],"svg-blueprint.js":[function(require,module,exports){
+},{"./blueprint":9}],"svg-blueprint":[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

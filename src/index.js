@@ -1,5 +1,4 @@
-require('./polyfill');
+import settings from "./settings";
+import Blueprint from "./Blueprint";
 
-const SVGBlueprint = require('./SVGBlueprint');
-
-module.exports = SVGBlueprint;
+export { settings, Blueprint };

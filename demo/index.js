@@ -1,24 +1,19 @@
-const blueprint = new SVGBlueprint({
-  parentSelector: 'main'
+const sbp = require("svg-blueprint");
+const makerjs = require('makerjs');
+
+// create blueprint
+const blueprint = new sbp.Blueprint({
+  parentSelector: "main"
 });
 
-blueprint.append('rect', {
-  width: 100,
-  height: 100
-});
+// add simple shape
+blueprint.append('rect', { x: -40, y: -40, width: 80, height: 80 });
 
-blueprint.append('rect', {
-  x: -150,
-  y: -150,
-  width: 500,
-  height: 150
-});
+// append maker.js model
+const smile = new SmileModel();
+const path = makerjs.exporter.toSVGPathData(smile, { origin: [0, 0] });
 
-blueprint.append('<circle r="100" />');
+blueprint.append('path', { d: path });
 
-blueprint.append('<circle r="150" />', {
-  cx: 100,
-  cy: 100
-});
-
-blueprint.fitView();
+// fit view
+blueprint.fit();

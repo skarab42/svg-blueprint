@@ -1,16 +1,17 @@
 {
   "name": "svg-blueprint",
-  "version": "0.1.0",
-  "description": "SVG Blueprint inspired by maker.js",
+  "version": "0.2.0",
+  "description": "SVG Blueprint inspired by maker.js playground",
   "main": "./src/index.js",
   "module": "./src/index.js",
-  "browser": "./dist/svg-blueprint.js",
   "scripts": {
-    "serv:demo": "budo ./src/browser.js:bundle.js --dir ./demo --live --open -- -t babelify",
-    "build:demo": "browserify ./src/browser.js -t babelify -p tinyify > ./demo/bundle.js",
-    "build:http": "browserify ./src/browser.js -t babelify > ./dist/svg-blueprint.js",
-    "build:tiny": "browserify ./src/browser.js -t babelify -p tinyify > ./dist/svg-blueprint.tiny.js",
-    "build:all": "yarn build:demo && yarn build:http && yarn build:tiny"
+    "dev": "budo ./src/index.js -s svg-blueprint.js --dir ./demo --live --open -- -r ./src/index.js:svg-blueprint -t babelify -p licensify",
+    "build:demo": "browserify ./src/index.js -s svg-blueprint.js -t babelify -p licensify -p tinyify > ./demo/svg-blueprint.js",
+    "build:tiny": "browserify ./src/index.js -s svg-blueprint.js -t babelify -p licensify -p tinyify > ./dist/svg-blueprint.tiny.js",
+    "build:http": "browserify ./src/index.js -s svg-blueprint.js -t babelify -p licensify > ./dist/svg-blueprint.js",
+    "build": "yarn build:demo && yarn build:http && yarn build:tiny",
+    "format": "prettier-eslint --write ./src/**/*.js",
+    "lint": "eslint ./src/**/*.js"
   },
   "homepage": "https://github.com/onlfait/svg-blueprint",
   "bugs": {
@@ -33,8 +34,12 @@
   "devDependencies": {
     "@babel/core": "^7.6.2",
     "@babel/preset-env": "^7.6.2",
+    "babel-eslint": "^10.0.3",
     "babelify": "^10.0.0",
     "budo": "^11.6.3",
+    "eslint": "^6.5.1",
+    "licensify": "^3.1.3",
+    "prettier-eslint-cli": "^5.0.0",
     "tinyify": "^2.5.1"
   }
 }

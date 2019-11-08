@@ -1,78 +1,255 @@
+/**
+ * XML namespace.
+ *
+ * @type {string}
+ */
+const xmlns = "http://www.w3.org/2000/svg";
+
+/**
+ * Support passive event listener?
+ *
+ * @type {bool}
+ */
 let supportsPassiveEventListener = false;
 
 try {
-  const opts = Object.defineProperty({}, 'passive', {
-    get: function() { supportsPassiveEventListener = true; }
+  const opts = Object.defineProperty({}, "passive", {
+    get: function() {
+      return (supportsPassiveEventListener = true);
+    }
   });
-  window.addEventListener('testPassive', null, opts);
-  window.removeEventListener('testPassive', null, opts);
-} catch (e) {}
+  window.addEventListener("testPassive", null, opts);
+  window.removeEventListener("testPassive", null, opts);
+} catch (e) {
+  /* test fail... */
+}
 
-function addPassiveEventListener(element, eventName, callback) {
+/**
+ * Add passive event listener.
+ *
+ * @param {Element}      element
+ * @param {array|string} name
+ * @param {function}     [callback=null]
+ */
+function addPassiveEventListener(element, name, callback) {
   const capture = supportsPassiveEventListener ? { passive: true } : false;
-  element.addEventListener(eventName, callback, capture);
+  let names = name;
+
+  if (typeof names === "string") {
+    names = names.trim().split(/[\s,]+/);
+  }
+
+  names.forEach(name => {
+    if (callback === null) {
+      element.removeEventListener(name, callback, capture);
+    } else {
+      element.addEventListener(name, callback, capture);
+    }
+  });
 }
 
-function addEvent(element, name, value = null) {
-  if (typeof name === 'string') {
-    addPassiveEventListener(element, name, value);
+/**
+ * Add (passive) event(s) listener.
+ *
+ * @param {Element}  element
+ * @param {string}   name
+ * @param {function} [callback=null]
+ */
+function addEvent(element, name, callback = null) {
+  if (typeof name === "string") {
+    addPassiveEventListener(element, name, callback);
     return;
   }
 
-  const names = Object.entries(name);
+  const keys = Object.keys(name);
 
-  for (let [name, value] of names) {
-    addPassiveEventListener(element, name, value);
+  for (let key of keys) {
+    addPassiveEventListener(element, key, name[key]);
   }
 }
 
+/**
+ * Set style(s).
+ *
+ * Setting a NULL value remove the property.
+ *
+ * @param {Element}       element
+ * @param {string|object} name
+ * @param {null|mixed}    [value=null]
+ */
 function setStyle(element, name, value = null) {
-  if (typeof name === 'string') {
-    element.style[name] = value;
+  if (typeof name === "string") {
+    if (value === null) {
+      element.style.removeProperty(name);
+    } else {
+      element.style.setProperty(name, value);
+    }
     return;
   }
 
-  const names = Object.entries(name);
+  const keys = Object.keys(name);
 
-  for (let [name, value] of names) {
-    element.style[name] = value;
+  for (let key of keys) {
+    setStyle(element, key, name[key]);
   }
 }
 
-function setAttribute(element, name, value = null) {
-  if (typeof name === 'string') {
-    element.setAttribute(name, value);
+/**
+ * Set transform(s).
+ *
+ * - setTransform(element);                // remove all
+ * - setTransform(element, null);          // remove all
+ * - setTransform(element, 'scale');       // remove "scale(x)" in transform attribute
+ * - setTransform(element, 'scale', null); // remove "scale(x)" in transform attribute
+ * - setTransform(element, 'scale', 10);   // set "scale(10)" in transform attribute
+ *
+ * @param {Element}            element
+ * @param {null|string|object} type
+ * @param {null|mixed}         [value=null]
+ */
+function setTransform(element, type = null, value = null) {
+  // remove transform attribute
+  if (type === null) {
+    setAttribute(element, "transform", null);
     return;
   }
 
-  const names = Object.entries(name);
+  // get current value
+  let transform = element.getAttribute("transform") || "";
 
-  for (let [name, value] of names) {
-    if (name === 'events') {
-      addEvent(element, value);
-    } else if (name === 'style') {
-      setStyle(element, value);
+  // ...
+  let types = {};
+
+  if (typeof type === "string") {
+    types[type] = value;
+  } else {
+    types = type;
+  }
+
+  const keys = Object.keys(types);
+
+  for (let key of keys) {
+    const value = types[key];
+    // remove transform type
+    transform = transform.replace(new RegExp(`${key}\\([^)]+\\)`, "g"), "");
+    if (value === null) {
+      continue;
+    }
+    // add new value
+    if (Array.isArray(value)) {
+      transform += `${key}(${value.join(" ")}) `;
+    } else {
+      transform += `${key}(${value}) `;
+    }
+  }
+
+  // cleanup
+  transform = transform.replace(/\s+/, " ").trim();
+
+  // set new transform
+  setAttribute(element, "transform", transform);
+}
+
+/**
+ * Set attribute(s).
+ *
+ * - Setting a NULL value remove the attribute.
+ * - If the name parameter is "style", setStyle(element, value) is called.
+ * - If the name parameter is "event", addEvent(element, value) is called.
+ * - If the name parameter is "transform", setTransform(element, value) is called.
+ *
+ * @param {Element}       element
+ * @param {string|object} name
+ * @param {null|mixed}    [value=null]
+ */
+function setAttribute(element, name, value = null) {
+  if (typeof name === "string") {
+    if (value === null) {
+      element.removeAttribute(name);
     } else {
       element.setAttribute(name, value);
     }
+    return;
+  }
+
+  const keys = Object.keys(name);
+
+  for (let key of keys) {
+    if (key === "style") {
+      setStyle(element, name[key]);
+    } else if (key === "event") {
+      addEvent(element, name[key]);
+    } else if (key === "transform") {
+      setTransform(element, name[key]);
+    } else {
+      setAttribute(element, key, name[key]);
+    }
   }
 }
 
-function createElement(name, attributes = null) {
-    const element = document.createElement(name);
-
-    if (attributes !== null) {
-      setAttribute(element, attributes);
-    }
-
-    return element;
+/**
+ * Create en return a DOM Element from a string.
+ *
+ * @param {string} string
+ * @param {string} [mimeType="application/xml"]
+ *
+ * @return {Element}
+ */
+function fromString(string, mimeType = "application/xml") {
+  return new DOMParser().parseFromString(string, mimeType);
 }
 
-module.exports = {
-  supportsPassiveEventListener,
-  addPassiveEventListener,
-  addEvent,
+/**
+ * Create en return a DOM Element.
+ *
+ * @param {string}      string
+ * @param {null|object} [attributes=null]
+ *
+ * @return {Element}
+ */
+function createElement(name, attributes = null) {
+  const element = document.createElement(name);
+
+  if (attributes !== null) {
+    setAttribute(element, attributes);
+  }
+
+  return element;
+}
+
+/**
+ * Create en return a SVG Element.
+ *
+ * @param {string}      string
+ * @param {null|object} [attributes=null]
+ *
+ * @return {SVGElement}
+ */
+function createSVGElement(name, attributes = null) {
+  let element = null;
+
+  if (name.charAt(0) === "<") {
+    const doc = fromString(`<svg xmlns="${xmlns}">${name}</svg>`);
+    element = doc.documentElement.firstChild;
+  } else {
+    element = document.createElementNS(xmlns, name);
+  }
+
+  if (attributes !== null) {
+    setAttribute(element, attributes);
+  }
+
+  return element;
+}
+
+export {
+  xmlns,
   setStyle,
   setAttribute,
-  createElement
+  setTransform,
+  fromString,
+  createElement,
+  createSVGElement,
+  addPassiveEventListener,
+  addEvent
 };

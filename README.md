@@ -1,5 +1,13 @@
 # svg-blueprint
 
-WIP...
+SVG Blueprint inspired by [maker.js](https://maker.js.org/) [playground](https://maker.js.org/playground/).
 
-DEMO: https://onlfait.github.io/svg-blueprint/demo/
+![Screenshot](/docs/screenshot.png?raw=true)
+
+## DEMO
+
+https://onlfait.github.io/svg-blueprint/demo/
+
+## DOCS
+
+https://onlfait.github.io/svg-blueprint/docs/

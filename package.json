@@ -6,9 +6,9 @@
   "module": "./src/index.js",
   "scripts": {
     "dev": "budo ./src/index.js -s svg-blueprint.js --dir ./demo --live --open -- -r ./src/index.js:svg-blueprint -t babelify -p licensify",
-    "build:demo": "browserify ./src/index.js -s svg-blueprint.js -t babelify -p licensify -p tinyify > ./demo/svg-blueprint.js",
-    "build:tiny": "browserify ./src/index.js -s svg-blueprint.js -t babelify -p licensify -p tinyify > ./dist/svg-blueprint.tiny.js",
-    "build:http": "browserify ./src/index.js -s svg-blueprint.js -t babelify -p licensify > ./dist/svg-blueprint.js",
+    "build:demo": "browserify -r ./src/index.js:svg-blueprint.js -t babelify -p licensify -p tinyify > ./demo/svg-blueprint.js",
+    "build:tiny": "browserify -r ./src/index.js:svg-blueprint.js -t babelify -p licensify -p tinyify > ./dist/svg-blueprint.tiny.js",
+    "build:http": "browserify -r ./src/index.js:svg-blueprint.js -t babelify -p licensify > ./dist/svg-blueprint.js",
     "build": "yarn build:demo && yarn build:http && yarn build:tiny",
     "format": "prettier-eslint --write ./src/**/*.js",
     "lint": "eslint ./src/**/*.js"

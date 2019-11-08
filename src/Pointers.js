@@ -226,6 +226,73 @@ class Pointers {
     }
   }
 
+  onPinch(p1, p2) {
+    const pinchDistance = p1.position.distance(p2.position);
+    const pinchMidpoint = p1.position.midpoint(p2.position);
+    const pinchOffset = p1.pinchOffset || pinchDistance;
+    const pinchRatio = pinchDistance / p1.pinchOffset;
+    Object.assign(p1, {
+      pinchDistance,
+      pinchMidpoint,
+      pinchOffset,
+      pinchRatio
+    });
+    Object.assign(p2, {
+      pinchDistance,
+      pinchMidpoint,
+      pinchOffset,
+      pinchRatio
+    });
+  }
+
+  /**
+   * Pinch recognizer.
+   *
+   * @param {string}  eventType
+   * @param {Pointer} pointer
+   */
+  pinchRecognizer(eventType, pointer) {
+    if (eventType === "move") {
+      if (pointer.pinch) {
+        this.onPinch(pointer, pointer.pinch);
+        this.emit("pinch.move", pointer.clone());
+      }
+      return;
+    }
+
+    if (eventType === "down") {
+      let p1 = null;
+      this.pointers.forEach(p => {
+        if (p1 || !p.down || p.pinch || p.id === pointer.id) return;
+        p1 = p;
+      });
+      if (p1) {
+        p1.pinch = pointer;
+        pointer.pinch = p1;
+        this.onPinch(p1, pointer);
+        this.emit("pinch.start", pointer.clone());
+      }
+      return;
+    }
+
+    const pinchReset = point => {
+      point.pinch = null;
+      point.pinchRatio = 1;
+      point.pinchDistance = 0;
+      point.pinchMidpoint = 0;
+      point.pinchOffset = 0;
+    };
+
+    if (eventType === "up") {
+      if (pointer.pinch) {
+        this.emit("pinch.end", pointer.clone());
+        pinchReset(pointer.pinch);
+        pinchReset(pointer);
+      }
+      return;
+    }
+  }
+
   /**
    * Track pointer event.
    *
@@ -267,6 +334,7 @@ class Pointers {
     // recognizers
     this.tapRecognizer(eventType, pointer);
     this.panRecognizer(eventType, pointer);
+    this.pinchRecognizer(eventType, pointer);
   }
 
   /**

@@ -22,6 +22,11 @@ class Pointer {
     this.panDistance = 0;
     this.panStartPosition = 0;
     this.panOffsets = new Point();
+    this.pinch = null;
+    this.pinchRatio = 1;
+    this.pinchDistance = 0;
+    this.pinchMidpoint = 0;
+    this.pinchOffset = 0;
   }
 
   /**

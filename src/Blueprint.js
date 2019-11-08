@@ -108,6 +108,31 @@ class Blueprint {
       panId = null;
     });
 
+    // pinch
+    let pinchRatio = null;
+    let pinchMidpoint = null;
+
+    this.pointers.on("pinch.start", event => {
+      panId = null; // end pan...
+      pinchRatio = 1; //event.data.pinchRatio;
+      pinchMidpoint = event.data.pinchMidpoint;
+      this.updateCursorPosition({ position: pinchMidpoint, show: true });
+    });
+
+    this.pointers.on("pinch.move", event => {
+      panId = null; // end pan...
+      this.zoom({
+        ratio: this.scale + event.data.pinchRatio - pinchRatio,
+        target: pinchMidpoint
+      });
+      pinchRatio = event.data.pinchRatio;
+      this.updateCursorPosition({ position: pinchMidpoint, show: true });
+    });
+
+    this.pointers.on("pinch.end", () => {
+      this.hide("cursor");
+    });
+
     // mouse wheel
     this.pointers.on("wheel.start", event => {
       this.updateCursorPosition({ position: event.data.position, show: true });

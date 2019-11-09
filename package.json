@@ -1,6 +1,6 @@
 {
   "name": "svg-blueprint",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "SVG Blueprint inspired by maker.js playground",
   "main": "./src/index.js",
   "module": "./src/index.js",

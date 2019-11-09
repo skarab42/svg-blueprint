@@ -130,6 +130,16 @@ const blueprint = new sbp.Blueprint({
 | font-family      | string | "monospace", |
 | text-transform   | string | "uppercase"  |
 
+# Defaults settings
+
+The default parameters are accessible and modifiable via the `settings` property of the main object.
+
+```js
+const sbp = require("svg-blueprint");
+
+sbp.settings.axisColor = "red"; // set the axis color for all Blueprint instances
+```
+
 # Methods
 
 ```js

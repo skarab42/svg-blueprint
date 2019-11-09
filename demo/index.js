@@ -3,7 +3,9 @@ const makerjs = require('makerjs');
 
 // create blueprint
 const blueprint = new sbp.Blueprint({
-  parentSelector: "main"
+  parentSelector: "main",
+  width: '100%',
+  height: '100%'
 });
 
 // add simple shape

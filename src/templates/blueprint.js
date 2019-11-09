@@ -1,7 +1,7 @@
 import { templateFactory } from "../template";
 
 export default templateFactory(`
-<div data-key="blueprint" class="{{className}} {{className}}-{{uid}}" style="width: {{width}}; height: {{height}};">
+<div data-key="blueprint" class="{{className}} {{className}}-{{uid}}" style="position: relative; width: {{width}}; height: {{height}};">
 
   <svg data-key="canvas" class="{{className}}-grid" style="position: relative; width: 100%; height: 100%; overflow: hidden;" xmlns="http://www.w3.org/2000/svg">
     <defs>
@@ -41,6 +41,10 @@ export default templateFactory(`
     </svg>
 
   </svg>
+
+  <div data-key="statusbar" class="{{className}}-statusbar" style="position: absolute; left: 5px; bottom: 5px; padding: 5px; background-color: {{statusbarBgColor}}; color: {{statusbarColor}}; border-radius: 5px; text-transform: uppercase; font-family: monospace;">
+    <span data-key="position">x: 0, y: 0</span> | zoom: <span data-key="zoom">100 %</span>
+  </div>
 
 </div>
 `);

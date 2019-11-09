@@ -67,6 +67,9 @@ class Blueprint {
     /** @type {Point} Cursor position. */
     this.cursor = new Point(0, 0);
 
+    /** @type {Point} Cursor coordinates. */
+    this.cursorCoords = new Point(0, 0);
+
     /** @type {float} Current scale factor. */
     this.scale = 1;
 
@@ -79,12 +82,11 @@ class Blueprint {
     // append the blueprint element to parent element
     this.parent.appendChild(this.elements.blueprint);
 
-    // cursor tracking
+    // primary cursor tracking
     this.pointers.on("move", event => {
       if (event.data.primary) {
-        const coords = this.getRelativePosition(event.data.position);
-
-        console.log(coords);
+        this.cursorCoords = this.getRelativePosition(event.data.position);
+        this.redrawStatusbar();
       }
     });
 
@@ -196,6 +198,24 @@ class Blueprint {
   }
 
   /**
+   * Redraw the statusbar.
+   */
+  redrawStatusbar() {
+    let zoom = Math.round(this.scale * 100);
+    let decimals = zoom.toString().length - 1;
+    const x = this.cursorCoords.x.toFixed(decimals);
+    const y = this.cursorCoords.y.toFixed(decimals);
+
+    if (zoom < 1) {
+      decimals = this.zoomLimit.min.toFixed(20).replace(/0+$/, "").length - 4;
+      zoom = (this.scale * 100).toFixed(decimals);
+    }
+
+    this.elements.position.innerText = `x: ${x}, y: ${y}`;
+    this.elements.zoom.innerText = `${zoom} %`;
+  }
+
+  /**
    * Redraw the workspace.
    */
   redraw() {
@@ -245,6 +265,8 @@ class Blueprint {
       this.elements.bbox = clone.querySelector('[data-key="bbox"]');
       this.elements.workspace = clone;
     }
+
+    this.redrawStatusbar();
   }
 
   /**

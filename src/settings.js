@@ -23,7 +23,9 @@ const settings = {
   zoomLimit: { min: 0.0001, max: 10000 },
   fitPadding: 42,
   stroke: "#fff",
-  fill: "none"
+  fill: "none",
+  statusbarColor: "#222",
+  statusbarBgColor: "#fff"
 };
 
 export default settings;

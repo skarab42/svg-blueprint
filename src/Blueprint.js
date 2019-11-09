@@ -474,6 +474,18 @@ class Blueprint {
     this.elements.bbox.appendChild(element);
     return element;
   }
+
+  /**
+   * Remove an element from the workspace.
+   *
+   * @param {string|Element} element Query selector string or an SVG Element.
+   */
+  remove(element) {
+    if (typeof element === "string") {
+      element = this.elements.bbox.querySelector(element);
+    }
+    this.elements.bbox.removeChild(element);
+  }
 }
 
 export default Blueprint;

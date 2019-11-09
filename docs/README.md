@@ -160,6 +160,8 @@ b.redraw();
 b.getWorkspaceCenter();
 b.getRelativePosition({ x: 10, y: 10 });
 
-b.append("rect", { width: 80, height: 80 });
-b.createElement("rect", { width: 80, height: 80 });
+const rect1 = b.append("rect", { width: 80, height: 80 });
+const rect2 = b.createElement("rect", { width: 80, height: 80 });
+
+b.remove(rect1);
 ```

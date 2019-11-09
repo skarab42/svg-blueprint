@@ -2,7 +2,7 @@
 
 SVG Blueprint inspired by [maker.js](https://maker.js.org/) [playground](https://maker.js.org/playground/).
 
-![Screenshot](/docs/screenshot.png?raw=true)
+![Screenshot](docs/screenshot.png?raw=true)
 
 ## DEMO
 

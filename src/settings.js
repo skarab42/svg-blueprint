@@ -24,8 +24,16 @@ const settings = {
   fitPadding: 42,
   stroke: "#fff",
   fill: "none",
-  statusbarColor: "#222",
-  statusbarBgColor: "#fff"
+  statusbarStyle: {
+    left: "5px",
+    bottom: "5px",
+    padding: "5px",
+    color: "#222",
+    "background-color": "#fff",
+    "border-radius": "5px",
+    "font-family": "monospace",
+    "text-transform": "uppercase"
+  }
 };
 
 export default settings;

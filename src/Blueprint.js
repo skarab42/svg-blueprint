@@ -82,6 +82,9 @@ class Blueprint {
     // append the blueprint element to parent element
     this.parent.appendChild(this.elements.blueprint);
 
+    // statusbar styling
+    setStyle(this.elements.statusbar, this.settings.statusbarStyle);
+
     // primary cursor tracking
     this.pointers.on("move", event => {
       if (event.data.primary) {

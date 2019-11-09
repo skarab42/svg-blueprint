@@ -115,6 +115,20 @@ const blueprint = new sbp.Blueprint({
 | strokeWidth      | int     | 2                           | Workspace objects stroke width.                                  |
 | stroke           | string  | "#fff"                      | Workspace objects stroke color.                                  |
 | fill             | string  | "none"                      | Workspace objects fill color.                                    |
+| statusbarStyle   | object  | (see below)                 | Statusbar CSS style                                              |
+
+## statusbarStyle
+
+| Name             | Type   | Default      |
+| ---------------- | ------ | ------------ |
+| left             | string | "5px",       |
+| bottom           | string | "5px",       |
+| padding          | string | "5px",       |
+| color            | string | "#222",      |
+| background-color | string | "#fff",      |
+| border-radius    | string | "5px",       |
+| font-family      | string | "monospace", |
+| text-transform   | string | "uppercase"  |
 
 # Methods
 

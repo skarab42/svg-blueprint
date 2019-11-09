@@ -121,9 +121,6 @@ const blueprint = new sbp.Blueprint({
 ```js
 const b = new sbp.Blueprint();
 
-b.createElement("rect", { width: 80, height: 80 });
-b.append("rect", { width: 80, height: 80 });
-
 b.move({ x: 10, y: 10 });
 b.pan({ x: 10, y: 10 });
 b.zoom({ ratio: 0.5 });
@@ -135,5 +132,10 @@ b.center();
 b.fit();
 
 b.redraw();
+
 b.getWorkspaceCenter();
+b.getRelativePosition({ x: 10, y: 10 });
+
+b.append("rect", { width: 80, height: 80 });
+b.createElement("rect", { width: 80, height: 80 });
 ```

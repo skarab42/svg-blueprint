@@ -311,6 +311,7 @@ class Pointers {
     // add new pointer if not already set
     if (!pointer) {
       pointer = new Pointer(pointerEvent);
+      pointer.primary = pointerEvent.isPrimary;
       pointer.position = position;
       this.setPointer(pointer);
     }

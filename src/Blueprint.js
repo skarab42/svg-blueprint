@@ -79,6 +79,15 @@ class Blueprint {
     // append the blueprint element to parent element
     this.parent.appendChild(this.elements.blueprint);
 
+    // cursor tracking
+    this.pointers.on("move", event => {
+      if (event.data.primary) {
+        const coords = this.getRelativePosition(event.data.position);
+
+        console.log(coords);
+      }
+    });
+
     // tap
     this.pointers.on("tap.end", event => {
       if (event.data.tapCount === 2) {
@@ -286,6 +295,19 @@ class Blueprint {
   }
 
   /**
+   * Return the relative position at current scale.
+   *
+   * @param {Point} position
+   * @param {float} [scale=null]
+   *
+   * @return {Point}
+   */
+  getRelativePosition(position, scale = null) {
+    scale = scale === null ? this.scale : scale;
+    return position.div(scale).add(this.position.div(scale));
+  }
+
+  /**
    * Zoom the workspace.
    *
    * @param {float|object} [scale={}]          Scale ratio or scale options.
@@ -335,7 +357,7 @@ class Blueprint {
       : this.getWorkspaceCenter();
 
     // mouse coordinates at current scale
-    const coords = scale.target.div(oldScale).add(this.position.div(oldScale));
+    const coords = this.getRelativePosition(scale.target, oldScale);
 
     // new position
     this.position = new Point(

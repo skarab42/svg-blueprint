@@ -27,6 +27,7 @@ class Pointer {
     this.pinchDistance = 0;
     this.pinchMidpoint = 0;
     this.pinchOffset = 0;
+    this.primary = false;
   }
 
   /**

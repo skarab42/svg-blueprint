@@ -118,6 +118,9 @@ function () {
     /** @type {Point} Cursor position. */
 
     this.cursor = new _point["default"](0, 0);
+    /** @type {Point} Cursor coordinates. */
+
+    this.cursorCoords = new _point["default"](0, 0);
     /** @type {float} Current scale factor. */
 
     this.scale = 1;
@@ -128,7 +131,17 @@ function () {
 
     this.pointers = new _pointers["default"](this.parent); // append the blueprint element to parent element
 
-    this.parent.appendChild(this.elements.blueprint); // tap
+    this.parent.appendChild(this.elements.blueprint); // statusbar styling
+
+    (0, _dom.setStyle)(this.elements.statusbar, this.settings.statusbarStyle); // primary cursor tracking
+
+    this.pointers.on("move", function (event) {
+      if (event.data.primary) {
+        _this.cursorCoords = _this.getRelativePosition(event.data.position);
+
+        _this.redrawStatusbar();
+      }
+    }); // tap
 
     this.pointers.on("tap.end", function (event) {
       if (event.data.tapCount === 2) {
@@ -270,6 +283,26 @@ function () {
       this.show(what, !_hide);
     }
     /**
+     * Redraw the statusbar.
+     */
+
+  }, {
+    key: "redrawStatusbar",
+    value: function redrawStatusbar() {
+      var zoom = Math.round(this.scale * 100);
+      var decimals = zoom.toString().length - 1;
+      var x = this.cursorCoords.x.toFixed(decimals);
+      var y = this.cursorCoords.y.toFixed(decimals);
+
+      if (zoom < 1) {
+        decimals = this.zoomLimit.min.toFixed(20).replace(/0+$/, "").length - 4;
+        zoom = (this.scale * 100).toFixed(decimals);
+      }
+
+      this.elements.position.innerText = "x: ".concat(x, ", y: ").concat(y);
+      this.elements.zoom.innerText = "".concat(zoom, " %");
+    }
+    /**
      * Redraw the workspace.
      */
 
@@ -310,6 +343,8 @@ function () {
         this.elements.bbox = clone.querySelector('[data-key="bbox"]');
         this.elements.workspace = clone;
       }
+
+      this.redrawStatusbar();
     }
     /**
      * Update the cursor position.
@@ -367,6 +402,22 @@ function () {
       return new _point["default"](this.elements.blueprint.offsetWidth / 2, this.elements.blueprint.offsetHeight / 2);
     }
     /**
+     * Return the relative position at current scale.
+     *
+     * @param {Point} position
+     * @param {float} [scale=null]
+     *
+     * @return {Point}
+     */
+
+  }, {
+    key: "getRelativePosition",
+    value: function getRelativePosition(position) {
+      var scale = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      scale = scale === null ? this.scale : scale;
+      return position.div(scale).add(this.position.div(scale));
+    }
+    /**
      * Zoom the workspace.
      *
      * @param {float|object} [scale={}]          Scale ratio or scale options.
@@ -415,7 +466,7 @@ function () {
 
       scale.target = scale.target ? new _point["default"](scale.target) : this.getWorkspaceCenter(); // mouse coordinates at current scale
 
-      var coords = scale.target.div(oldScale).add(this.position.div(oldScale)); // new position
+      var coords = this.getRelativePosition(scale.target, oldScale); // new position
 
       this.position = new _point["default"](coords.x * this.scale - scale.target.x, coords.y * this.scale - scale.target.y);
       this.redraw();
@@ -506,6 +557,21 @@ function () {
       var element = this.createElement(name, attributes);
       this.elements.bbox.appendChild(element);
       return element;
+    }
+    /**
+     * Remove an element from the workspace.
+     *
+     * @param {string|Element} element Query selector string or an SVG Element.
+     */
+
+  }, {
+    key: "remove",
+    value: function remove(element) {
+      if (typeof element === "string") {
+        element = this.elements.bbox.querySelector(element);
+      }
+
+      this.elements.bbox.removeChild(element);
     }
   }]);
 
@@ -740,6 +806,7 @@ function () {
     this.pinchDistance = 0;
     this.pinchMidpoint = 0;
     this.pinchOffset = 0;
+    this.primary = false;
   }
   /**
    * Clone and return the new pointer.
@@ -1591,6 +1658,7 @@ function () {
 
       if (!pointer) {
         pointer = new _Pointer["default"](pointerEvent);
+        pointer.primary = pointerEvent.isPrimary;
         pointer.position = position;
         this.setPointer(pointer);
       } // update pointer
@@ -1732,7 +1800,17 @@ var settings = {
   },
   fitPadding: 42,
   stroke: "#fff",
-  fill: "none"
+  fill: "none",
+  statusbarStyle: {
+    left: "5px",
+    bottom: "5px",
+    padding: "5px",
+    color: "#222",
+    "background-color": "#fff",
+    "border-radius": "5px",
+    "font-family": "monospace",
+    "text-transform": "uppercase"
+  }
 };
 var _default = settings;
 exports["default"] = _default;
@@ -1841,7 +1919,7 @@ exports["default"] = void 0;
 
 var _template = require("../template");
 
-var _default = (0, _template.templateFactory)("\n<div data-key=\"blueprint\" class=\"{{className}} {{className}}-{{uid}}\" style=\"width: {{width}}; height: {{height}};\">\n\n  <svg data-key=\"canvas\" class=\"{{className}}-grid\" style=\"position: relative; width: 100%; height: 100%; overflow: hidden;\" xmlns=\"http://www.w3.org/2000/svg\">\n    <defs>\n      <pattern id=\"gridPattern10\" width=\"0.1\" height=\"0.1\">\n        <path data-key=\"gridPattern10\" d=\"M 10 0 L 0 0 0 10\" fill=\"none\" stroke=\"{{gridColor}}\" stroke-width=\"0.1\" />\n      </pattern>\n      <pattern id=\"gridPattern100\" width=\"1\" height=\"1\">\n        <path data-key=\"gridPattern100\" d=\"M 100 0 L 0 0 0 100\" fill=\"none\" stroke=\"{{gridColor}}\" stroke-width=\"1\" />\n      </pattern>\n      <pattern data-key=\"gridPattern\" id=\"gridPattern\" width=\"100\" height=\"100\" patternUnits=\"userSpaceOnUse\">\n        <rect data-key=\"gridFill10\" fill=\"url(#gridPattern10)\" width=\"100\" height=\"100\" />\n        <rect data-key=\"gridFill100\" fill=\"url(#gridPattern100)\" width=\"100\" height=\"100\" opacity=\"{{gridOpacity}}\" />\n      </pattern>\n    </defs>\n    <rect data-key=\"background\" class=\"{{className}}-background\" width=\"100%\" height=\"100%\" fill=\"{{backgroundColor}}\" />\n    <rect data-key=\"grid\" class=\"{{className}}-grid\" width=\"100%\" height=\"100%\" fill=\"url(#gridPattern)\" />\n    <g data-key=\"axis\" class=\"{{className}}-axis\" style=\"opacity: {{axisOpacity}};\">\n      <line data-key=\"axisX\" x1=\"0\" y1=\"0\" x2=\"100%\" y2=\"0\" stroke=\"{{axisColor}}\" stroke-width=\"1\" transform=\"translate(0 0)\" />\n      <line data-key=\"axisY\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"100%\" stroke=\"{{axisColor}}\" stroke-width=\"1\" transform=\"translate(0 0)\" />\n    </g>\n    <g data-key=\"cursor\" class=\"{{className}}-cursor\" style=\"opacity: {{cursorOpacity}}; display: none;\">\n      <line data-key=\"cursorX\" x1=\"0\" y1=\"0\" x2=\"100%\" y2=\"0\" stroke=\"{{cursorColor}}\" stroke-width=\"1\" transform=\"translate(0 0)\" />\n      <line data-key=\"cursorY\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"100%\" stroke=\"{{cursorColor}}\" stroke-width=\"1\" transform=\"translate(0 0)\" />\n    </g>\n\n    <svg\n      data-key=\"workspace\"\n      class=\"{{className}}-workspace\"\n      width=\"1\"\n      height=\"1\"\n      viewBox=\"0 0 1 1\"\n      style=\"position: absolute; overflow: visible; fill: {{fill}}; stroke: {{stroke}}; stroke-width: {{strokeWidth}};\"\n      xmlns=\"http://www.w3.org/2000/svg\">\n\n      <g data-key=\"bbox\"></g>\n\n    </svg>\n\n  </svg>\n\n</div>\n");
+var _default = (0, _template.templateFactory)("\n<div data-key=\"blueprint\" class=\"{{className}} {{className}}-{{uid}}\" style=\"position: relative; width: {{width}}; height: {{height}};\">\n\n  <svg data-key=\"canvas\" class=\"{{className}}-grid\" style=\"position: relative; width: 100%; height: 100%; overflow: hidden;\" xmlns=\"http://www.w3.org/2000/svg\">\n\n    <defs>\n      <pattern id=\"gridPattern10\" width=\"0.1\" height=\"0.1\">\n        <path data-key=\"gridPattern10\" d=\"M 10 0 L 0 0 0 10\" fill=\"none\" stroke=\"{{gridColor}}\" stroke-width=\"0.1\" />\n      </pattern>\n      <pattern id=\"gridPattern100\" width=\"1\" height=\"1\">\n        <path data-key=\"gridPattern100\" d=\"M 100 0 L 0 0 0 100\" fill=\"none\" stroke=\"{{gridColor}}\" stroke-width=\"1\" />\n      </pattern>\n      <pattern data-key=\"gridPattern\" id=\"gridPattern\" width=\"100\" height=\"100\" patternUnits=\"userSpaceOnUse\">\n        <rect data-key=\"gridFill10\" fill=\"url(#gridPattern10)\" width=\"100\" height=\"100\" />\n        <rect data-key=\"gridFill100\" fill=\"url(#gridPattern100)\" width=\"100\" height=\"100\" opacity=\"{{gridOpacity}}\" />\n      </pattern>\n    </defs>\n\n    <rect data-key=\"background\" class=\"{{className}}-background\" width=\"100%\" height=\"100%\" fill=\"{{backgroundColor}}\" />\n    <rect data-key=\"grid\" class=\"{{className}}-grid\" width=\"100%\" height=\"100%\" fill=\"url(#gridPattern)\" />\n\n    <g data-key=\"axis\" class=\"{{className}}-axis\" style=\"opacity: {{axisOpacity}};\">\n      <line data-key=\"axisX\" x1=\"0\" y1=\"0\" x2=\"100%\" y2=\"0\" stroke=\"{{axisColor}}\" stroke-width=\"1\" transform=\"translate(0 0)\" />\n      <line data-key=\"axisY\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"100%\" stroke=\"{{axisColor}}\" stroke-width=\"1\" transform=\"translate(0 0)\" />\n    </g>\n\n    <g data-key=\"cursor\" class=\"{{className}}-cursor\" style=\"opacity: {{cursorOpacity}}; display: none;\">\n      <line data-key=\"cursorX\" x1=\"0\" y1=\"0\" x2=\"100%\" y2=\"0\" stroke=\"{{cursorColor}}\" stroke-width=\"1\" transform=\"translate(0 0)\" />\n      <line data-key=\"cursorY\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"100%\" stroke=\"{{cursorColor}}\" stroke-width=\"1\" transform=\"translate(0 0)\" />\n    </g>\n\n    <svg\n      data-key=\"workspace\"\n      class=\"{{className}}-workspace\"\n      width=\"1\"\n      height=\"1\"\n      viewBox=\"0 0 1 1\"\n      style=\"position: absolute; overflow: visible; fill: {{fill}}; stroke: {{stroke}}; stroke-width: {{strokeWidth}};\"\n      xmlns=\"http://www.w3.org/2000/svg\">\n      <g data-key=\"bbox\"></g>\n    </svg>\n\n  </svg>\n\n  <div\n    data-key=\"statusbar\"\n    class=\"{{className}}-statusbar\"\n    style=\"position: absolute;\">\n    <span data-key=\"position\">x: 0, y: 0</span> | zoom: <span data-key=\"zoom\">100 %</span>\n  </div>\n\n</div>\n");
 
 exports["default"] = _default;
 

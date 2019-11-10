@@ -4,7 +4,7 @@
 
 ![Screenshot](screenshot.png?raw=true)
 
-- Simple and lightweight
+- Simple and lightweight (~5kB gzipped)
 - Pan, Zoom, Pinch-to-zoom
 - Center view, Fit view
 - No dependency

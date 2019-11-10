@@ -2,14 +2,17 @@
   "name": "svg-blueprint",
   "version": "1.0.0",
   "description": "SVG Blueprint inspired by maker.js playground",
-  "main": "./src/index.js",
-  "module": "./src/index.js",
+  "source": "./src/index.js",
+  "main": "./build/svg-blueprint.js",
+  "module": "./build/svg-blueprint.mjs",
+  "unpkg": "./build/svg-blueprint.umd.js",
   "scripts": {
-    "dev": "budo ./src/index.js -s svg-blueprint.js --dir ./demo --live --open -- -r ./src/index.js:svg-blueprint -t babelify -p licensify",
-    "build:demo": "browserify -r ./src/index.js:svg-blueprint -t babelify -p licensify -p tinyify > ./demo/svg-blueprint.js",
-    "build:tiny": "browserify -r ./src/index.js:svg-blueprint -t babelify -p licensify -p tinyify > ./dist/svg-blueprint.tiny.js",
-    "build:http": "browserify -r ./src/index.js:svg-blueprint -t babelify -p licensify > ./dist/svg-blueprint.js",
-    "build": "yarn build:demo && yarn build:http && yarn build:tiny",
+    "bundle:build": "microbundle build",
+    "bundle:watch": "microbundle watch",
+    "browserify": "browserify -r ./build/svg-blueprint.js:svg-blueprint -p licensify > ./build/svg-blueprint.br.js",
+    "build": "yarn bundle:build && yarn browserify && cp-cli ./build/svg-blueprint.br.js ./demo/svg-blueprint.js",
+    "serv:demo": "budo ./build/svg-blueprint.js --dir ./demo --live --open -- -r ./build/svg-blueprint.js:svg-blueprint",
+    "serv:dev": "yarn bundle:watch | yarn serv:demo",
     "format": "prettier-eslint --write ./src/**/*.js",
     "lint": "eslint ./src/**/*.js"
   },
@@ -32,14 +35,13 @@
   "author": "Sébastien Mischler <sebastien@onlfait.ch>",
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "^7.6.2",
-    "@babel/preset-env": "^7.6.2",
     "babel-eslint": "^10.0.3",
-    "babelify": "^10.0.0",
+    "browserify": "^16.5.0",
     "budo": "^11.6.3",
+    "cp-cli": "^2.0.0",
     "eslint": "^6.5.1",
     "licensify": "^3.1.3",
-    "prettier-eslint-cli": "^5.0.0",
-    "tinyify": "^2.5.1"
+    "microbundle": "^0.11.0",
+    "prettier-eslint-cli": "^5.0.0"
   }
 }

@@ -1,7 +1,7 @@
 # Quick start
 
 - Create a new folder.
-- Download the [svg-blueprint.js](https://github.com/onlfait/svg-blueprint/tree/master/dist/svg-blueprint.js).
+- Download the [svg-blueprint.br.js](https://github.com/onlfait/svg-blueprint/tree/master/build/svg-blueprint.br.js).
 - Create the index.html file below.
 - Done !
 
@@ -18,7 +18,7 @@
   </head>
   <body>
     <main></main>
-    <script src="./svg-blueprint.js"></script>
+    <script src="./svg-blueprint.br.js"></script>
     <script>
       const sbp = require("svg-blueprint");
 
@@ -49,11 +49,11 @@ yarn add svg-blueprint
 npm install svg-blueprint
 ```
 
-## Manual install
+## Manual install (browserified)
 
-Download one of the `svg-blueprint[.tiny].js` file from the [./dist](https://github.com/onlfait/svg-blueprint/tree/master/dist) folder and copy the file to your project.
+Download the [svg-blueprint.br.js](https://github.com/onlfait/svg-blueprint/tree/master/build/svg-blueprint.br.js) and copy the file to your project.
 
-Next call the lib from your HTML file.
+Next, call the lib from your HTML file.
 
 ```html
 <script src="./svg-blueprint.js"></script>

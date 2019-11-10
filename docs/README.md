@@ -49,11 +49,21 @@ yarn add svg-blueprint
 npm install svg-blueprint
 ```
 
-## Manual install (browserified)
+## Install via UNPKG
+
+```html
+<script src="https://unpkg.com/svg-blueprint"></script>
+<script>
+  const blueprint = new svgBlueprint.Blueprint({
+    parentSelector: "body",
+    ...
+  });
+</script>
+```
+
+## Manual install (Browserify version)
 
 Download the [svg-blueprint.br.js](https://github.com/onlfait/svg-blueprint/tree/master/build/svg-blueprint.br.js) and copy the file to your project.
-
-Next, call the lib from your HTML file.
 
 ```html
 <script src="./svg-blueprint.js"></script>

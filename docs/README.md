@@ -132,7 +132,7 @@ const blueprint = new sbp.Blueprint({
 
 # Defaults settings
 
-The default parameters are accessible and modifiable via the `settings` property of the main object.
+Defaults settings are accessible and modifiable via the `settings` property of the main object.
 
 ```js
 const sbp = require("svg-blueprint");

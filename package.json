@@ -27,10 +27,12 @@
   "keywords": [
     "svg",
     "blueprint",
-    "maker.js",
-    "makerjs",
+    "pan",
     "zoom",
-    "pan"
+    "fit",
+    "grid",
+    "maker.js",
+    "makerjs"
   ],
   "author": "Sébastien Mischler <sebastien@onlfait.ch>",
   "license": "MIT",

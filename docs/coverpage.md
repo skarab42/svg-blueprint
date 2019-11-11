@@ -10,8 +10,8 @@
 - No dependency
 - Customizable
 
-[GitHub](https://github.com/onlfait/svg-blueprint)
 [Get Started](#quick-start)
 [Demo](https://onlfait.github.io/svg-blueprint/demo/)
+[GitHub](https://github.com/onlfait/svg-blueprint)
 
 ![color](#f0f0f0)

@@ -4,20 +4,77 @@
     <meta charset="UTF-8" />
     <title>svg-blueprint - SVG Blueprint inspired by maker.js playground</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <meta name="description" content="SVG Blueprint inspired by maker.js playground" />
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
-    <link rel="stylesheet" href="https://unpkg.com/docsify/lib/themes/vue.css" />
+    <meta
+      name="description"
+      content="SVG Blueprint inspired by maker.js playground"
+    />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple.css"
+    />
   </head>
   <body>
     <div id="app"></div>
     <script>
+      var repo = "https://github.com/onlfait/svg-blueprint/";
+      var docs = repo + "tree/master/docs/";
+
+      function editOnGithub(hook, vm) {
+        function plugin(html) {
+          var url = docs + vm.route.file;
+          var title = "Edit on github";
+          var link =
+            '<a href="' +
+            url +
+            '" style="float: right" target="_blank">' +
+            title +
+            "</a>";
+
+          return link + html;
+        }
+        hook.afterEach(plugin);
+      }
       window.$docsify = {
         name: "svg-blueprint",
-        repo: "https://github.com/onlfait/svg-blueprint",
+        repo: repo,
         themeColor: "#3177C6",
-        coverpage: true
+        coverpage: "coverpage.md",
+        loadSidebar: "sidebar.md",
+        homepage: "quick-start.md",
+        auto2top: true,
+        maxLevel: 3,
+        subMaxLevel: 3,
+        pagination: {
+          crossChapter: true
+        },
+        plugins: [editOnGithub]
       };
     </script>
     <script src="https://unpkg.com/docsify/lib/docsify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify-themeable@0"></script>
+    <script src="https://unpkg.com/docsify-copy-code@2"></script>
+    <script src="https://unpkg.com/docsify-pagination/dist/docsify-pagination.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
+    <style>
+      :root {
+        --link-color: #3177c6;
+        --pagination-title-color: #3177c6;
+      }
+      .cover blockquote a {
+        color: #3177c6;
+      }
+      .cover img {
+        width: 100%;
+      }
+      .pagination-item:not(:last-child) a .pagination-item-label,
+      .pagination-item:not(:last-child) a .pagination-item-title {
+        opacity: 1;
+      }
+    </style>
   </body>
 </html>

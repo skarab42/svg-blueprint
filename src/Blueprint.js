@@ -476,6 +476,21 @@ class Blueprint {
   }
 
   /**
+   * Create and prepend to the workspace an SVG element with default properties.
+   *
+   * @param {string} name
+   * @param {object} [attributes={}]
+   *
+   * @return {SVGElement}
+   */
+  prepend(name, attributes = {}) {
+    const element = this.createElement(name, attributes);
+    const firstElement = this.elements.bbox.firstElementChild;
+    this.elements.bbox.insertBefore(element, firstElement);
+    return element;
+  }
+
+  /**
    * Remove an element from the workspace.
    *
    * @param {string|Element} element Query selector string or an SVG Element.

@@ -491,6 +491,38 @@ class Blueprint {
   }
 
   /**
+   * Create an SVG element with default properties
+   * and insert after an exisiting element.
+   *
+   * @param {Element} element
+   * @param {string}  name
+   * @param {object}  [attributes={}]
+   *
+   * @return {SVGElement}
+   */
+  insertAfter(element, name, attributes = {}) {
+    const newElement = this.createElement(name, attributes);
+    element.parentNode.insertBefore(newElement, element.nextSibling);
+    return newElement;
+  }
+
+  /**
+   * Create an SVG element with default properties
+   * and insert before an exisiting element.
+   *
+   * @param {Element} element
+   * @param {string}  name
+   * @param {object}  [attributes={}]
+   *
+   * @return {SVGElement}
+   */
+  insertBefore(element, name, attributes = {}) {
+    const newElement = this.createElement(name, attributes);
+    element.parentNode.insertBefore(newElement, element);
+    return newElement;
+  }
+
+  /**
    * Remove an element from the workspace.
    *
    * @param {string|Element} element Query selector string or an SVG Element.

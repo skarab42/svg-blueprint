@@ -442,8 +442,8 @@ class Blueprint {
    * - set default "stroke" and "fill" attributes from settings
    * - "stroke-width, stroke, fill" can be overwritten by attribute parameter
    *
-   * @param {string} name
-   * @param {object} [attributes={}]
+   * @param {string|Element} name
+   * @param {object}         [attributes={}]
    *
    * @return {SVGElement}
    */
@@ -464,8 +464,8 @@ class Blueprint {
   /**
    * Create and append to the workspace an SVG element with default properties.
    *
-   * @param {string} name
-   * @param {object} [attributes={}]
+   * @param {string|Element} name
+   * @param {object}         [attributes={}]
    *
    * @return {SVGElement}
    */
@@ -478,8 +478,8 @@ class Blueprint {
   /**
    * Create and prepend to the workspace an SVG element with default properties.
    *
-   * @param {string} name
-   * @param {object} [attributes={}]
+   * @param {string|Element} name
+   * @param {object}         [attributes={}]
    *
    * @return {SVGElement}
    */
@@ -494,9 +494,9 @@ class Blueprint {
    * Create an SVG element with default properties
    * and insert after an exisiting element.
    *
-   * @param {Element} element
-   * @param {string}  name
-   * @param {object}  [attributes={}]
+   * @param {Element}        element
+   * @param {string|Element} name
+   * @param {object}         [attributes={}]
    *
    * @return {SVGElement}
    */
@@ -510,9 +510,9 @@ class Blueprint {
    * Create an SVG element with default properties
    * and insert before an exisiting element.
    *
-   * @param {Element} element
-   * @param {string}  name
-   * @param {object}  [attributes={}]
+   * @param {Element}        element
+   * @param {string|Element} name
+   * @param {object}         [attributes={}]
    *
    * @return {SVGElement}
    */

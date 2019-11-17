@@ -110,7 +110,9 @@ Create and return an SVG element with default properties.
 - "stroke-width, stroke, fill" can be overwritten by `attribute` parameter.
 
 ```js
-const rect = b.createElement("rect", { width: 80, height: 80 });
+const rect1 = b.createElement("rect", { width: 80, height: 80 });
+// clone rect1 and set x property
+const rect2 = b.createElement(rect1, { x: 100 });
 ```
 
 ### append
@@ -121,6 +123,40 @@ Create and append to the workspace an SVG element with default properties.
 
 ```js
 b.append("rect", { width: 80, height: 80 });
+```
+
+### prepend
+
+Create and prepend to the workspace an SVG element with default properties.
+
+- See `createElement`.
+
+```js
+b.prepend("rect", { width: 80, height: 80 });
+```
+
+### insertBefore
+
+Create an SVG element with default properties and insert before an exisiting element.
+
+- See `createElement`.
+
+```js
+const rect1 = b.append("rect", { ... });
+const rect3 = b.append("rect", { ... });
+const rect2 = b.insertBefore(rect3, "rect", { ... });
+```
+
+### insertAfter
+
+Create an SVG element with default properties and insert after an exisiting element.
+
+- See `createElement`.
+
+```js
+const rect1 = b.append("rect", { ... });
+const rect3 = b.append("rect", { ... });
+const rect2 = b.insertAfter(rect1, "rect", { ... });
 ```
 
 ### remove

@@ -212,6 +212,8 @@ function createElement(name, attributes = null) {
 
   if (typeof name === "string") {
     element = document.createElement(name);
+  } else {
+    element = element.cloneNode(true);
   }
 
   if (attributes !== null) {
@@ -239,6 +241,8 @@ function createSVGElement(name, attributes = null) {
     } else {
       element = document.createElementNS(xmlns, name);
     }
+  } else {
+    element = element.cloneNode(true);
   }
 
   if (attributes !== null) {

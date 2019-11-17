@@ -202,13 +202,17 @@ function fromString(string, mimeType = "application/xml") {
 /**
  * Create en return a DOM Element.
  *
- * @param {string}      string
- * @param {null|object} [attributes=null]
+ * @param {string|Element} name
+ * @param {null|object}    [attributes=null]
  *
  * @return {Element}
  */
 function createElement(name, attributes = null) {
-  const element = document.createElement(name);
+  let element = name;
+
+  if (typeof name === "string") {
+    element = document.createElement(name);
+  }
 
   if (attributes !== null) {
     setAttribute(element, attributes);
@@ -220,19 +224,21 @@ function createElement(name, attributes = null) {
 /**
  * Create en return a SVG Element.
  *
- * @param {string}      string
- * @param {null|object} [attributes=null]
+ * @param {string|Element} name
+ * @param {null|object}    [attributes=null]
  *
  * @return {SVGElement}
  */
 function createSVGElement(name, attributes = null) {
-  let element = null;
+  let element = name;
 
-  if (name.charAt(0) === "<") {
-    const doc = fromString(`<svg xmlns="${xmlns}">${name}</svg>`);
-    element = doc.documentElement.firstChild;
-  } else {
-    element = document.createElementNS(xmlns, name);
+  if (typeof name === "string") {
+    if (name.charAt(0) === "<") {
+      const doc = fromString(`<svg xmlns="${xmlns}">${name}</svg>`);
+      element = doc.documentElement.firstChild;
+    } else {
+      element = document.createElementNS(xmlns, name);
+    }
   }
 
   if (attributes !== null) {
